@@ -48,7 +48,7 @@ type LightboxTriggerProps = {
   onOpen: (src: string) => void;
 };
 
-export function LightboxTrigger({ src, alt = "Photo", className, children, onOpen }: LightboxTriggerProps) {
+export function LightboxTrigger({ src, className, children, onOpen }: LightboxTriggerProps) {
   return (
     <div
       className={`relative group/lb cursor-zoom-in ${className ?? ""}`}

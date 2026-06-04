@@ -40,8 +40,8 @@ export default function SavedPage() {
       .order("created_at", { ascending: false })
       .limit(50);
 
-    const loaded = (data ?? [])
-      .map((r: { post: FeedPost | FeedPost[] | null }) => {
+    const loaded = ((data ?? []) as unknown as Array<{ post: FeedPost | FeedPost[] | null }>)
+      .map((r) => {
         const p = r.post;
         return Array.isArray(p) ? p[0] : p;
       })

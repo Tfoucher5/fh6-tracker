@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Bell, CheckCheck, BellOff } from "lucide-react";
+import { CheckCheck, BellOff } from "lucide-react";
 import { PageLayout } from "../components/PageLayout";
 import { NotificationItem } from "../features/notifications/components/NotificationItem";
 import { useNotifications } from "../features/notifications/hooks/useNotifications";

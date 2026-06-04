@@ -285,7 +285,7 @@ export default function PublicProfilePage() {
             compareLoading || myCarIds === null ? (
               <LoadingGarage />
             ) : (
-              <GarageComparison myCarIds={myCarIds} theirCars={ownedCars} theirName={profile.display_name ?? profile.username} />
+              <GarageComparison myCarIds={myCarIds} theirCars={ownedCars} />
             )
           ) : tab === "posts" ? (
             postsLoading ? (
@@ -441,7 +441,7 @@ function EmptyGarage({ username }: { username: string }) {
   );
 }
 
-function GarageComparison({ myCarIds, theirCars, theirName }: { myCarIds: Set<string>; theirCars: OwnedCar[]; theirName: string }) {
+function GarageComparison({ myCarIds, theirCars }: { myCarIds: Set<string>; theirCars: OwnedCar[] }) {
   const theyHaveIDoNot = theirCars.filter((c) => !myCarIds.has(c.id));
   const commonCount = theirCars.filter((c) => myCarIds.has(c.id)).length;
 

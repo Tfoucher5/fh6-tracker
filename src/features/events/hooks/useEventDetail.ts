@@ -59,7 +59,7 @@ export function useEventDetail(eventId: string | undefined) {
       setIsParticipating(false);
       setEvent((prev) =>
         prev
-          ? { ...prev, event_participants: prev.event_participants.filter((p) => p.user_id !== user.id) }
+          ? ({ ...prev, event_participants: prev.event_participants.filter((p) => p.user_id !== user.id) } as EventWithDetails)
           : prev
       );
     } else {
@@ -73,7 +73,7 @@ export function useEventDetail(eventId: string | undefined) {
       setIsParticipating(true);
       setEvent((prev) =>
         prev
-          ? {
+          ? ({
               ...prev,
               event_participants: [
                 ...prev.event_participants,
@@ -83,7 +83,7 @@ export function useEventDetail(eventId: string | undefined) {
                   profile: profileData ?? { username: "?", display_name: null, avatar_url: null },
                 },
               ],
-            }
+            } as EventWithDetails)
           : prev
       );
     }

@@ -72,7 +72,7 @@ export function useEvents() {
     );
   }
 
-  async function createEvent(input: CreateEventInput): Promise<FHEvent> {
+  async function createEvent(input: CreateEventInput): Promise<void> {
     if (!user) throw new Error("Non connecté");
 
     const { data, error } = await supabase
@@ -91,7 +91,6 @@ export function useEvents() {
     if (error) throw new Error(error.message);
     const newEvent = data as unknown as FHEvent;
     setEvents((prev) => [...prev, newEvent].sort((a, b) => a.event_date.localeCompare(b.event_date)));
-    return newEvent;
   }
 
   return { user, events, loading, myParticipations, joinEvent, leaveEvent, createEvent };

@@ -21,10 +21,9 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode; fn: string; unit: s
 ];
 
 const RANK_COLORS = ["text-amber-400", "text-slate-400", "text-orange-600"];
-const RANK_BG    = ["bg-amber-400/10 border-amber-400/20", "bg-slate-700/30 border-slate-700/40", "bg-orange-600/10 border-orange-600/20"];
 
 export default function LeaderboardPage() {
-  const [tab, setTab] = useState<Tab>("garage");
+  const [tab, setTab] = useState<Tab>("posts");
   const [data, setData] = useState<Record<Tab, LeaderEntry[] | null>>({
     posts: null, followers: null,
   });
