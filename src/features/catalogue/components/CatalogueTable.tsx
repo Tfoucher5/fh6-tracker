@@ -1,6 +1,7 @@
 import { Star } from "lucide-react";
-import type { CarRow, UserCarRow } from "../types";
 import { Link } from "react-router-dom";
+import type { CarRow, UserCarRow } from "../types";
+import { ClassBadge } from "../../../components/ClassBadge";
 
 type ToggleField = "owned" | "photographed" | "favorite";
 
@@ -11,24 +12,19 @@ type CatalogueTableProps = {
   savingCarId: string | null;
 };
 
-export function CatalogueTable({
-  cars,
-  getStatus,
-  toggleStatus,
-  savingCarId,
-}: CatalogueTableProps) {
+export function CatalogueTable({ cars, getStatus, toggleStatus, savingCarId }: CatalogueTableProps) {
   return (
-    <div className="overflow-x-auto rounded-2xl border border-slate-800">
+    <div className="overflow-x-auto rounded-xl border border-slate-800/80">
       <table className="w-full text-sm">
-        <thead className="bg-slate-950 text-slate-400">
+        <thead className="bg-slate-950/60 text-slate-500">
           <tr>
-            <th className="text-left px-4 py-3">Voiture</th>
-            <th className="text-left px-4 py-3">Classe</th>
-            <th className="text-left px-4 py-3">Type</th>
-            <th className="text-left px-4 py-3">Pays</th>
-            <th className="text-center px-4 py-3">Garage</th>
-            <th className="text-center px-4 py-3">Photo</th>
-            <th className="text-center px-4 py-3">Fav</th>
+            <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-widest">Voiture</th>
+            <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-widest">Classe</th>
+            <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-widest">Type</th>
+            <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-widest">Pays</th>
+            <th className="text-center px-4 py-3 text-xs font-semibold uppercase tracking-widest">Garage</th>
+            <th className="text-center px-4 py-3 text-xs font-semibold uppercase tracking-widest">Photo</th>
+            <th className="text-center px-4 py-3 text-xs font-semibold uppercase tracking-widest">Fav</th>
           </tr>
         </thead>
 
@@ -40,51 +36,39 @@ export function CatalogueTable({
             return (
               <tr
                 key={car.id}
-                className="border-t border-slate-800 hover:bg-slate-800/40"
+                className="border-t border-slate-800/60 hover:bg-slate-800/20 transition-colors"
               >
                 <td className="px-4 py-3">
-                  <div>
-                    <Link
-                      to={`/cars/${car.id}`}
-                      className="font-semibold text-white hover:text-red-300 transition-colors"
-                    >
-                      {car.year ?? "N/A"} · {car.make} {car.model}
-                    </Link>
-                    {car.availability && (
-                      <p className="text-xs text-slate-500">
-                        {car.availability}
-                      </p>
-                    )}
-                  </div>
+                  <Link
+                    to={`/cars/${car.id}`}
+                    className="font-semibold text-white hover:text-red-400 transition-colors"
+                  >
+                    {car.year ?? "N/A"} · {car.make} {car.model}
+                  </Link>
+                  {car.availability && (
+                    <p className="text-xs text-slate-600 mt-0.5">{car.availability}</p>
+                  )}
                 </td>
 
                 <td className="px-4 py-3">
                   {car.car_class ? (
-                    <span className="rounded-full bg-red-500/15 border border-red-500/20 text-red-300 px-3 py-1 text-xs font-semibold">
-                      {car.car_class}
-                      {car.pi ? ` ${car.pi}` : ""}
-                    </span>
+                    <ClassBadge carClass={car.car_class} pi={car.pi} size="sm" />
                   ) : (
-                    <span className="text-slate-500">-</span>
+                    <span className="text-slate-600 text-xs">—</span>
                   )}
                 </td>
 
-                <td className="px-4 py-3 text-slate-300">
-                  {car.car_type ?? "-"}
-                </td>
-
-                <td className="px-4 py-3 text-slate-300">
-                  {car.country ?? "-"}
-                </td>
+                <td className="px-4 py-3 text-slate-400 text-xs">{car.car_type ?? "—"}</td>
+                <td className="px-4 py-3 text-slate-400 text-xs">{car.country ?? "—"}</td>
 
                 <td className="px-4 py-3 text-center">
                   <button
                     disabled={saving}
                     onClick={() => toggleStatus(car.id, "owned")}
-                    className={`rounded-xl px-3 py-2 text-xs font-semibold transition-colors disabled:opacity-60 ${
+                    className={`rounded-lg px-2.5 py-1.5 text-xs font-bold transition-colors disabled:opacity-50 ${
                       status.owned
-                        ? "bg-red-600 hover:bg-red-500 text-white"
-                        : "bg-slate-800 hover:bg-slate-700 text-slate-300"
+                        ? "bg-red-600/90 hover:bg-red-500 text-white"
+                        : "bg-slate-800/80 hover:bg-slate-700 text-slate-400"
                     }`}
                   >
                     {status.owned ? "Possédée" : "Manquante"}
@@ -95,10 +79,10 @@ export function CatalogueTable({
                   <button
                     disabled={saving}
                     onClick={() => toggleStatus(car.id, "photographed")}
-                    className={`rounded-xl px-3 py-2 text-xs font-semibold transition-colors disabled:opacity-60 ${
+                    className={`rounded-lg px-2.5 py-1.5 text-xs font-bold transition-colors disabled:opacity-50 ${
                       status.photographed
-                        ? "bg-emerald-600 hover:bg-emerald-500 text-white"
-                        : "bg-slate-800 hover:bg-slate-700 text-slate-300"
+                        ? "bg-emerald-600/90 hover:bg-emerald-500 text-white"
+                        : "bg-slate-800/80 hover:bg-slate-700 text-slate-400"
                     }`}
                   >
                     {status.photographed ? "Photo OK" : "À faire"}
@@ -109,17 +93,13 @@ export function CatalogueTable({
                   <button
                     disabled={saving}
                     onClick={() => toggleStatus(car.id, "favorite")}
-                    className={`rounded-xl px-3 py-2 text-xs font-semibold transition-colors disabled:opacity-60 ${
+                    className={`rounded-lg px-2.5 py-1.5 text-xs font-bold transition-colors disabled:opacity-50 ${
                       status.favorite
-                        ? "bg-yellow-500/20 text-yellow-300 border border-yellow-500/30"
-                        : "bg-slate-800 hover:bg-slate-700 text-slate-300"
+                        ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
+                        : "bg-slate-800/80 hover:bg-slate-700 text-slate-400"
                     }`}
                   >
-                    <Star
-                      className={`w-4 h-4 mx-auto ${
-                        status.favorite ? "fill-yellow-300" : ""
-                      }`}
-                    />
+                    <Star className={`w-3.5 h-3.5 mx-auto ${status.favorite ? "fill-amber-300" : ""}`} />
                   </button>
                 </td>
               </tr>

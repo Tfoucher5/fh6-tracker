@@ -20,6 +20,7 @@ export type UserCarDetail = {
   owned: boolean;
   photographed: boolean;
   favorite: boolean;
+  wanted: boolean;
   notes: string | null;
   acquired_at: string | null;
   photographed_at: string | null;

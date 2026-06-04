@@ -4,6 +4,16 @@ import ProfilePage from "./pages/ProfilePage";
 import CataloguePage from "./pages/CataloguePage";
 import DashboardPage from "./pages/DashboardPage";
 import CarDetailPage from "./pages/CarDetailPage";
+import FeedPage from "./pages/FeedPage";
+import EventsPage from "./pages/EventsPage";
+import EventDetailPage from "./pages/EventDetailPage";
+import PublicProfilePage from "./pages/PublicProfilePage";
+import InboxPage from "./pages/InboxPage";
+import SearchPage from "./pages/SearchPage";
+import SavedPage from "./pages/SavedPage";
+import WishlistPage from "./pages/WishlistPage";
+import LeaderboardPage from "./pages/LeaderboardPage";
+import { NotificationToast } from "./features/notifications/components/NotificationToast";
 
 export default function App() {
   return (
@@ -14,7 +24,17 @@ export default function App() {
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/catalogue" element={<CataloguePage />} />
         <Route path="/cars/:id" element={<CarDetailPage />} />
+        <Route path="/feed" element={<FeedPage />} />
+        <Route path="/events" element={<EventsPage />} />
+        <Route path="/events/:id" element={<EventDetailPage />} />
+        <Route path="/u/:username" element={<PublicProfilePage />} />
+        <Route path="/inbox" element={<InboxPage />} />
+        <Route path="/search" element={<SearchPage />} />
+        <Route path="/saved" element={<SavedPage />} />
+        <Route path="/wishlist" element={<WishlistPage />} />
+        <Route path="/leaderboard" element={<LeaderboardPage />} />
       </Routes>
+      <NotificationToast />
     </BrowserRouter>
   );
 }

@@ -5,6 +5,10 @@ import { CarNotesPanel } from "../features/cars/components/CarNotesPanel";
 import { CarPhotoUploader } from "../features/cars/components/CarPhotoUploader";
 import { CarPhotoGallery } from "../features/cars/components/CarPhotoGallery";
 import { useCarDetail } from "../features/cars/hooks/userCarDetail";
+import { PageLayout } from "../components/PageLayout";
+import { PostComposer } from "../features/social/components/PostComposer";
+import { usePostComposer } from "../features/social/hooks/usePostComposer";
+import { CarPostsFeed } from "../features/cars/components/CarPostsFeed";
 
 export default function CarDetailPage() {
   const { id } = useParams();
@@ -24,24 +28,31 @@ export default function CarDetailPage() {
     deletePhoto,
   } = useCarDetail(id);
 
+  const composer = usePostComposer(() => {});
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
-        Chargement de la voiture...
+      <div className="min-h-screen bg-[#050810] text-white flex items-center justify-center">
+        <p className="font-heading text-xl font-bold tracking-widest uppercase text-slate-400 animate-pulse">
+          Chargement…
+        </p>
       </div>
     );
   }
 
   if (!car || !status || !user) {
     return (
-      <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
-        Voiture introuvable.
+      <div className="min-h-screen bg-[#050810] text-white flex items-center justify-center">
+        <p className="font-heading text-xl font-bold tracking-widest uppercase text-slate-500">
+          Voiture introuvable.
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white px-4 py-8">
+    <PageLayout>
+    <div className="px-4 py-8">
       <div className="max-w-7xl mx-auto space-y-6">
         <CarDetailHeader car={car} />
 
@@ -57,6 +68,15 @@ export default function CarDetailPage() {
               status={status}
               saving={saving}
               onToggle={toggleStatus}
+              onShare={() => composer.openWithCar({
+                id: car.id,
+                make: car.make,
+                model: car.model,
+                year: car.year,
+                car_class: car.car_class,
+                pi: car.pi,
+                image_url: car.image_url,
+              })}
             />
 
             <CarNotesPanel
@@ -74,9 +94,13 @@ export default function CarDetailPage() {
               currentUserId={user.id}
               onDelete={deletePhoto}
             />
+
+            <CarPostsFeed carId={car.id} />
           </div>
         </div>
       </div>
     </div>
+      <PostComposer composer={composer} />
+    </PageLayout>
   );
 }

@@ -3,7 +3,7 @@ import type { User } from "@supabase/supabase-js";
 import { supabase } from "../../../lib/supabase";
 import type { CarDetail, CarPhoto, UserCarDetail } from "../types";
 
-type ToggleField = "owned" | "photographed" | "favorite";
+type ToggleField = "owned" | "photographed" | "favorite" | "wanted";
 
 export function useCarDetail(carId: string | undefined) {
   const [user, setUser] = useState<User | null>(null);
@@ -30,6 +30,7 @@ export function useCarDetail(carId: string | undefined) {
       owned: false,
       photographed: false,
       favorite: false,
+      wanted: false,
       notes: null,
       acquired_at: null,
       photographed_at: null,
@@ -71,7 +72,7 @@ export function useCarDetail(carId: string | undefined) {
     const { data: statusData, error: statusError } = await supabase
       .from("user_cars")
       .select(
-        "user_id, car_id, owned, photographed, favorite, notes, acquired_at, photographed_at"
+        "user_id, car_id, owned, photographed, favorite, wanted, notes, acquired_at, photographed_at"
       )
       .eq("user_id", currentUser.id)
       .eq("car_id", carId)
@@ -124,6 +125,7 @@ export function useCarDetail(carId: string | undefined) {
           owned: nextStatus.owned,
           photographed: nextStatus.photographed,
           favorite: nextStatus.favorite,
+          wanted: nextStatus.wanted,
           notes: nextStatus.notes,
           acquired_at: nextStatus.acquired_at,
           photographed_at: nextStatus.photographed_at,
@@ -133,7 +135,7 @@ export function useCarDetail(carId: string | undefined) {
         }
       )
       .select(
-        "user_id, car_id, owned, photographed, favorite, notes, acquired_at, photographed_at"
+        "user_id, car_id, owned, photographed, favorite, wanted, notes, acquired_at, photographed_at"
       )
       .single();
 
