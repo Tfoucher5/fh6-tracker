@@ -47,12 +47,26 @@ type DashboardStatus = {
 
 type AccentColor = "red" | "emerald" | "amber" | "violet" | "sky";
 
+type StreakData = {
+  current_streak: number;
+  best_streak: number;
+  last_streak_date: string | null;
+};
+
+type UpcomingEvent = {
+  id: string;
+  title: string;
+  event_date: string;
+};
+
 export default function DashboardPage() {
   const [user, setUser] = useState<User | null>(null);
   const [cars, setCars] = useState<DashboardCar[]>([]);
   const [statuses, setStatuses] = useState<DashboardStatus[]>([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
+  const [streakData, setStreakData] = useState<StreakData | null>(null);
+  const [upcomingEvents, setUpcomingEvents] = useState<UpcomingEvent[]>([]);
 
   useEffect(() => {
     loadDashboard();
@@ -95,7 +109,27 @@ export default function DashboardPage() {
       }
 
       setStatuses((statusData ?? []) as DashboardStatus[]);
+
+      // Streak data
+      const { data: profileData } = await supabase
+        .from("profiles")
+        .select("current_streak, best_streak, last_streak_date")
+        .eq("id", currentUser.id)
+        .single();
+
+      if (profileData) setStreakData(profileData as StreakData);
     }
+
+    // Upcoming events (accessible even without auth)
+    const { data: eventsData } = await supabase
+      .from("events")
+      .select("id, title, event_date")
+      .eq("is_public", true)
+      .gt("event_date", new Date().toISOString())
+      .order("event_date", { ascending: true })
+      .limit(3);
+
+    setUpcomingEvents((eventsData ?? []) as UpcomingEvent[]);
 
     setLoading(false);
   }
@@ -490,6 +524,12 @@ export default function DashboardPage() {
             </div>
           </section>
 
+          {/* Streak + Événements à venir */}
+          <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {user && <StreakWidget streakData={streakData} />}
+            <UpcomingEventsWidget events={upcomingEvents} />
+          </section>
+
           <section className="grid grid-cols-1 lg:grid-cols-[0.95fr_1.05fr] gap-4">
             <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5">
               <SectionHeader
@@ -841,6 +881,113 @@ function CommunityMetric({ icon, label, value }: CommunityMetricProps) {
       <p className="text-xs text-slate-500 mt-1">
         {value}
       </p>
+    </div>
+  );
+}
+
+function StreakWidget({ streakData }: { streakData: StreakData | null }) {
+  const todayStr = new Date().toLocaleDateString("sv-SE"); // "YYYY-MM-DD"
+  const todayValidated = streakData?.last_streak_date === todayStr;
+  const currentStreak = streakData?.current_streak ?? 0;
+  const bestStreak = streakData?.best_streak ?? 0;
+
+  return (
+    <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <Flame className="w-5 h-5 text-orange-400" />
+          <h2 className="font-heading font-bold text-xl uppercase tracking-wide text-white">Streak</h2>
+        </div>
+        <Link to="/leaderboard" className="text-xs text-slate-500 hover:text-slate-300 transition-colors">
+          Classement →
+        </Link>
+      </div>
+
+      <div className="flex items-end gap-6 mb-4">
+        <div>
+          <p className="font-heading font-black text-6xl text-orange-400 leading-none">{currentStreak}</p>
+          <p className="text-sm text-slate-400 mt-1">jours consécutifs</p>
+        </div>
+        <div className="pb-1">
+          <p className="font-heading font-black text-2xl text-slate-400">{bestStreak}</p>
+          <p className="text-xs text-slate-500 uppercase tracking-widest">Record</p>
+        </div>
+      </div>
+
+      <div className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-semibold ${
+        todayValidated
+          ? "bg-emerald-500/10 text-emerald-300 border border-emerald-500/20"
+          : "bg-orange-500/10 text-orange-300 border border-orange-500/20"
+      }`}>
+        {todayValidated ? (
+          <>
+            <CheckCircle2 className="w-4 h-4 shrink-0" />
+            Journée validée — reviens demain !
+          </>
+        ) : (
+          <>
+            <Flame className="w-4 h-4 shrink-0" />
+            {currentStreak > 0 ? "Poste aujourd'hui pour continuer ta série" : "Poste pour démarrer ta streak"}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function eventBadge(eventDate: string): { label: string; className: string } {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const d = new Date(eventDate);
+  d.setHours(0, 0, 0, 0);
+  const diff = Math.round((d.getTime() - today.getTime()) / 86400000);
+  if (diff === 0) return { label: "Aujourd'hui", className: "bg-red-500/15 text-red-300 border border-red-500/25" };
+  if (diff === 1) return { label: "Demain", className: "bg-orange-500/15 text-orange-300 border border-orange-500/25" };
+  if (diff <= 7) return { label: `Dans ${diff}j`, className: "bg-amber-500/15 text-amber-300 border border-amber-500/25" };
+  return { label: d.toLocaleDateString("fr-FR", { day: "numeric", month: "short" }), className: "bg-slate-800 text-slate-400 border border-slate-700" };
+}
+
+function UpcomingEventsWidget({ events }: { events: UpcomingEvent[] }) {
+  return (
+    <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <CalendarDays className="w-5 h-5 text-emerald-400" />
+          <h2 className="font-heading font-bold text-xl uppercase tracking-wide text-white">Événements</h2>
+        </div>
+        <Link to="/events" className="text-xs text-slate-500 hover:text-slate-300 transition-colors">
+          Tous →
+        </Link>
+      </div>
+
+      {events.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-6 gap-2 text-center">
+          <CalendarDays className="w-8 h-8 text-slate-700" />
+          <p className="text-sm text-slate-500">Aucun événement à venir</p>
+          <Link to="/events" className="text-xs text-emerald-400 hover:text-emerald-300 transition-colors mt-1">
+            Créer un événement →
+          </Link>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {events.map((event) => {
+            const badge = eventBadge(event.event_date);
+            return (
+              <Link
+                key={event.id}
+                to={`/events/${event.id}`}
+                className="flex items-center gap-3 bg-slate-950/60 border border-slate-800/60 rounded-xl px-4 py-3 hover:border-slate-700 transition-colors"
+              >
+                <span className={`shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full ${badge.className}`}>
+                  {badge.label}
+                </span>
+                <p className="text-sm font-semibold text-white truncate">{event.title}</p>
+                <ArrowRight className="w-3 h-3 text-slate-600 shrink-0 ml-auto" />
+              </Link>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
