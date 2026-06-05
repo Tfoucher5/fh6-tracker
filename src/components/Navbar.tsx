@@ -168,7 +168,7 @@ export function Navbar() {
                       ? "bg-red-600/20 text-red-400"
                       : "text-slate-500 hover:text-red-400 hover:bg-red-500/10"
                   }`}
-                  title="Administration"
+                  aria-label="Administration"
                 >
                   <ShieldCheck className="w-4 h-4" />
                 </Link>
@@ -177,12 +177,12 @@ export function Navbar() {
               <Link
                 to="/inbox"
                 onClick={closeMenus}
+                aria-label="Notifications"
                 className={`relative flex items-center justify-center w-9 h-9 rounded-lg transition-colors ${
                   pathname.startsWith("/inbox")
                     ? "bg-slate-800 text-white"
                     : "text-slate-400 hover:text-white hover:bg-slate-800/60"
                 }`}
-                title="Inbox"
               >
                 <Bell className="w-4 h-4" />
                 {unreadCount > 0 && (
@@ -218,7 +218,7 @@ export function Navbar() {
                   to="/admin"
                   onClick={closeMenus}
                   className="flex items-center justify-center w-9 h-9 rounded-lg text-slate-500 hover:text-red-400 transition-colors"
-                  title="Administration"
+                  aria-label="Administration"
                 >
                   <ShieldCheck className="w-4 h-4" />
                 </Link>
