@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Heart, MessageCircle, Trash2, Car, Bookmark, Flag, EyeOff, ShieldCheck, Target } from "lucide-react";
 import type { FeedPost } from "../types";
 import { UserAvatar } from "./UserAvatar";
@@ -35,6 +35,7 @@ function relativeDate(dateStr: string): string {
 }
 
 export function PostCard({ post, currentUserId, isSaved = false, isAdmin = false, isChallengeEntry = false, onLike, onDelete, onAdminHide, onSave, onCommentAdded }: PostCardProps) {
+  const navigate = useNavigate();
   const [showComments, setShowComments] = useState(false);
   const [lightbox, setLightbox] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -157,9 +158,8 @@ export function PostCard({ post, currentUserId, isSaved = false, isAdmin = false
         {/* Actions */}
         <div className="flex items-center gap-4">
           <button
-            onClick={() => onLike(post.id)}
-            disabled={!currentUserId}
-            className={`flex items-center gap-1.5 transition-colors disabled:opacity-40 ${
+            onClick={() => currentUserId ? onLike(post.id) : navigate("/auth")}
+            className={`flex items-center gap-1.5 transition-colors ${
               liked ? "text-red-500" : "text-slate-500 hover:text-red-400"
             }`}
           >
@@ -168,7 +168,7 @@ export function PostCard({ post, currentUserId, isSaved = false, isAdmin = false
           </button>
 
           <button
-            onClick={() => setShowComments((v) => !v)}
+            onClick={() => currentUserId ? setShowComments((v) => !v) : navigate("/auth")}
             className="flex items-center gap-1.5 text-slate-500 hover:text-slate-300 transition-colors"
           >
             <MessageCircle className="w-4 h-4" />

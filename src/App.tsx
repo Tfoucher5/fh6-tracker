@@ -20,6 +20,7 @@ import NotFoundPage from "./pages/NotFoundPage";
 import { NotificationToast } from "./features/notifications/components/NotificationToast";
 import { StatusGate } from "./components/StatusGate";
 import { CommunityGuard } from "./components/CommunityGuard";
+import { AuthGuard } from "./components/AuthGuard";
 
 export default function App() {
   return (
@@ -38,18 +39,24 @@ export default function App() {
           <Route path="/cars/:id" element={<CarDetailPage />} />
           <Route path="/u/:username" element={<PublicProfilePage />} />
           <Route path="/leaderboard" element={<LeaderboardPage />} />
-          <Route path="/wishlist" element={<WishlistPage />} />
-          <Route path="/saved" element={<SavedPage />} />
           <Route path="/admin" element={<AdminPage />} />
 
-          {/* Routes communautaires — bloquées si compte suspendu */}
+          {/* Routes publiques communautaires — lisibles sans compte */}
           <Route element={<CommunityGuard />}>
             <Route path="/feed" element={<FeedPage />} />
             <Route path="/events" element={<EventsPage />} />
             <Route path="/events/:id" element={<EventDetailPage />} />
             <Route path="/challenge/:id" element={<ChallengePage />} />
-            <Route path="/inbox" element={<InboxPage />} />
             <Route path="/search" element={<SearchPage />} />
+          </Route>
+
+          {/* Routes privées — redirigent vers /auth si non connecté */}
+          <Route element={<AuthGuard />}>
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/inbox" element={<InboxPage />} />
+            <Route path="/saved" element={<SavedPage />} />
+            <Route path="/wishlist" element={<WishlistPage />} />
           </Route>
 
           <Route path="*" element={<NotFoundPage />} />

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Eye, EyeOff, Mail, Lock, Gauge } from "lucide-react";
 import { supabase } from "../lib/supabase";
 
@@ -13,6 +14,8 @@ function validatePassword(password: string) {
 }
 
 export default function AuthPage() {
+  const [searchParams] = useSearchParams();
+  const returnTo = searchParams.get("returnTo") ?? "/feed";
   const [mode, setMode] = useState<"login" | "register">("login");
 
   useEffect(() => {
@@ -71,7 +74,7 @@ export default function AuthPage() {
         return;
       }
 
-      window.location.href = "/";
+      window.location.href = returnTo;
     } finally {
       setLoading(false);
     }

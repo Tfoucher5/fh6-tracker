@@ -79,10 +79,12 @@ export default function FeedPage() {
           {/* Trending */}
           {filter === "all" && <TrendingSection />}
 
-          {/* Filter tabs */}
+          {/* Filter tabs — filtre "Abonnements" uniquement si connecté */}
           <div className="flex gap-1 bg-slate-900/60 border border-slate-800/80 rounded-xl p-1">
             <TabButton active={filter === "all"} onClick={() => setFilter("all")} icon={<Globe className="w-4 h-4" />} label="Tous" />
-            <TabButton active={filter === "following"} onClick={() => setFilter("following")} icon={<Users className="w-4 h-4" />} label="Abonnements" />
+            {user && (
+              <TabButton active={filter === "following"} onClick={() => setFilter("following")} icon={<Users className="w-4 h-4" />} label="Abonnements" />
+            )}
           </div>
 
           {/* Feed */}
