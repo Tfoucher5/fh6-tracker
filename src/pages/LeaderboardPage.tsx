@@ -75,7 +75,7 @@ export default function LeaderboardPage() {
               <button
                 key={t.id}
                 onClick={() => setTab(t.id)}
-                className={`flex-1 flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${
+                className={`flex-1 flex items-center justify-center gap-2 rounded-lg px-3 py-3 text-sm font-semibold transition-colors ${
                   tab === t.id ? "bg-slate-800 text-white" : "text-slate-500 hover:text-slate-300"
                 }`}
               >

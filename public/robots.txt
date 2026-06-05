@@ -6,3 +6,5 @@ Disallow: /profile
 Disallow: /inbox
 Disallow: /auth
 Disallow: /banned
+
+Sitemap: https://forza.zik-music.fr/sitemap.xml

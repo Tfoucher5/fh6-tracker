@@ -44,10 +44,10 @@ export function EventCard({ event, isParticipating, onJoin, onLeave, currentUser
           <span className={`font-heading font-black text-2xl leading-none ${past ? "text-slate-500" : "text-white"}`}>
             {date.day}
           </span>
-          <span className={`text-[10px] font-bold uppercase tracking-widest mt-0.5 ${past ? "text-slate-600" : "text-red-400"}`}>
+          <span className={`text-xs font-bold uppercase tracking-widest mt-0.5 ${past ? "text-slate-600" : "text-red-400"}`}>
             {date.month}
           </span>
-          <span className={`text-[9px] font-mono mt-1 ${past ? "text-slate-600" : "text-slate-400"}`}>
+          <span className={`text-xs font-mono mt-1 ${past ? "text-slate-600" : "text-slate-400"}`}>
             {date.time}
           </span>
         </div>
@@ -89,7 +89,7 @@ export function EventCard({ event, isParticipating, onJoin, onLeave, currentUser
                 {participantCount}
                 {event.max_participants ? `/${event.max_participants}` : ""}
               </span>
-              {full && <span className="text-amber-400 text-[10px] font-bold">COMPLET</span>}
+              {full && <span className="text-amber-400 text-xs font-bold">COMPLET</span>}
             </div>
           </div>
         </div>
@@ -104,7 +104,7 @@ export function EventCard({ event, isParticipating, onJoin, onLeave, currentUser
           {isParticipating ? (
             <button
               onClick={(e) => { e.preventDefault(); onLeave?.(); }}
-              className="w-full rounded-lg bg-slate-800 hover:bg-slate-700 px-3 py-2 text-xs font-bold text-slate-400 transition-colors"
+              className="w-full rounded-lg bg-slate-800 hover:bg-slate-700 px-3 py-3 text-sm font-bold text-slate-400 transition-colors"
             >
               Se désinscrire
             </button>
@@ -112,7 +112,7 @@ export function EventCard({ event, isParticipating, onJoin, onLeave, currentUser
             <button
               onClick={(e) => { e.preventDefault(); onJoin?.(); }}
               disabled={full}
-              className="w-full rounded-lg bg-red-600 hover:bg-red-500 disabled:opacity-40 disabled:cursor-not-allowed px-3 py-2 text-xs font-bold text-white transition-colors"
+              className="w-full rounded-lg bg-red-600 hover:bg-red-500 disabled:opacity-40 disabled:cursor-not-allowed px-3 py-3 text-sm font-bold text-white transition-colors"
             >
               {full ? "Complet" : "Rejoindre"}
             </button>

@@ -415,7 +415,7 @@ export default function PublicProfilePage() {
                       </p>
                       {car.car_class && <ClassBadge carClass={car.car_class} pi={car.pi} size="sm" />}
                     </div>
-                    {car.year && <p className="text-[10px] font-mono text-slate-600">{car.year}</p>}
+                    {car.year && <p className="text-xs font-mono text-slate-600">{car.year}</p>}
                   </div>
                 </Link>
               ))}
@@ -504,12 +504,12 @@ function TabButton({
   return (
     <button
       onClick={onClick}
-      className={`flex-1 flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${
+      className={`flex-1 flex items-center justify-center gap-1.5 rounded-lg px-2 py-3 text-sm font-semibold transition-colors ${
         active ? "bg-slate-800 text-white" : "text-slate-500 hover:text-slate-300"
       }`}
     >
       {icon}
-      {label}
+      <span className="hidden sm:inline">{label}</span>
     </button>
   );
 }
@@ -584,15 +584,15 @@ function GarageComparison({ myCarIds, theirCars }: { myCarIds: Set<string>; thei
       <div className="grid grid-cols-3 gap-3">
         <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 text-center">
           <p className="font-heading font-black text-2xl text-red-400">{theyHaveIDoNot.length}</p>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-600 mt-1">Ils ont, pas toi</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-slate-600 mt-1">Ils ont, pas toi</p>
         </div>
         <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 text-center">
           <p className="font-heading font-black text-2xl text-emerald-400">{commonCount}</p>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-600 mt-1">En commun</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-slate-600 mt-1">En commun</p>
         </div>
         <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 text-center">
           <p className="font-heading font-black text-2xl text-slate-400">{myCarIds.size - commonCount}</p>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-600 mt-1">Tu as, pas eux</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-slate-600 mt-1">Tu as, pas eux</p>
         </div>
       </div>
 

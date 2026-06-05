@@ -150,7 +150,7 @@ export default function FeedPage() {
 
 function TabButton({ active, onClick, icon, label }: { active: boolean; onClick: () => void; icon: React.ReactNode; label: string }) {
   return (
-    <button onClick={onClick} className={`flex-1 flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${active ? "bg-slate-800 text-white" : "text-slate-500 hover:text-slate-300"}`}>
+    <button onClick={onClick} className={`flex-1 flex items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold transition-colors ${active ? "bg-slate-800 text-white" : "text-slate-500 hover:text-slate-300"}`}>
       {icon}{label}
     </button>
   );
