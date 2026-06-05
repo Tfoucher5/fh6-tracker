@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSEO } from "../hooks/useSEO";
 import { Link } from "react-router-dom";
 import { Trophy, Rss, Users, Flame } from "lucide-react";
 import { PageLayout } from "../components/PageLayout";
@@ -31,7 +32,11 @@ export default function LeaderboardPage() {
   });
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => { document.title = "Classement — FH6 Tracker"; }, []);
+  useSEO({
+    title: "Classement joueurs Forza Horizon 6",
+    description: "Classement des joueurs Forza Horizon 6 les plus actifs sur FH6 Tracker. Comparez vos collections, posts et progressions avec la communauté.",
+    canonical: "/leaderboard",
+  });
 
   useEffect(() => {
     if (data[tab] !== null) return;

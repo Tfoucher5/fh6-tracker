@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSEO } from "../hooks/useSEO";
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, MapPin, Users, CalendarDays, Loader2, CheckCircle2, Flag, EyeOff, ShieldCheck, RotateCcw, Trophy, Medal } from "lucide-react";
 import { PageLayout } from "../components/PageLayout";
@@ -24,13 +25,15 @@ export default function EventDetailPage() {
   const [podiumDraft, setPodiumDraft] = useState<{ 1: string; 2: string; 3: string }>({ 1: "", 2: "", 3: "" });
   const [podiumSaving, setPodiumSaving] = useState(false);
 
+  useSEO({
+    title: event ? `${event.title} — Événement Forza Horizon 6` : "Événement Forza Horizon 6",
+    description: event
+      ? `Rejoignez l'événement "${event.title}" sur FH6 Tracker. Participez, suivez le classement et tentez de décrocher un podium officiel.`
+      : undefined,
+  });
+
   useEffect(() => {
-    if (event) {
-      document.title = `${event.title} — FH6 Tracker`;
-      loadPodium(event.id);
-    } else {
-      document.title = "Événement — FH6 Tracker";
-    }
+    if (event) loadPodium(event.id);
   }, [event?.id]);
 
   async function loadPodium(eventId: string) {

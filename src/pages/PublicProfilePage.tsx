@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSEO } from "../hooks/useSEO";
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, Car, GamepadIcon, LayoutGrid, Image, UserPlus, UserCheck, Loader2, GitCompare, Flame, Trophy, Flag, Medal } from "lucide-react";
 import { ReportModal } from "../features/social/components/ReportModal";
@@ -79,6 +80,15 @@ export default function PublicProfilePage() {
     toggleFollow,
   } = useFollows(profile?.id ?? "");
 
+  useSEO({
+    title: profile
+      ? `${profile.display_name ?? profile.username} (@${profile.username}) — Profil Forza Horizon 6`
+      : "Profil joueur Forza Horizon 6",
+    description: profile
+      ? `Profil de ${profile.display_name ?? profile.username} sur FH6 Tracker — garage Forza Horizon 6, builds, événements et badges.`
+      : undefined,
+  });
+
   useEffect(() => {
     if (!username) return;
     loadProfile(username);
@@ -114,10 +124,8 @@ export default function PublicProfilePage() {
 
     if (error || !data) {
       setNotFound(true);
-      document.title = "Profil introuvable — FH6 Tracker";
     } else {
       setProfile(data);
-      document.title = `${data.display_name ?? data.username} (@${data.username}) — FH6 Tracker`;
       supabase
         .from("posts")
         .select("*", { count: "exact", head: true })

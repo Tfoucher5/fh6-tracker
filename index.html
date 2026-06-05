@@ -4,34 +4,73 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>FH6 Tracker</title>
 
-    <!-- SEO -->
-    <meta name="description" content="FH6 Tracker — Suis ta progression dans Forza Horizon 6, gère ton garage, compare tes voitures et rejoins la communauté : events, feed de builds, classements et challenges." />
-    <meta name="keywords" content="forza horizon 6, fh6 tracker, communauté forza horizon, garage forza, suivi progression forza, builds forza horizon 6, voitures fh6, horizon promo, gamertag xbox" />
-    <meta name="theme-color" content="#050810" />
+    <!-- Titre : 30-60 caractères -->
+    <title>FH6 Tracker — Communauté Forza Horizon 6</title>
+
+    <!-- SEO principal -->
+    <meta name="description" content="Suis ta progression dans Forza Horizon 6, gère ton garage avec 600+ voitures, rejoins les events, partage tes builds et participe aux défis hebdomadaires." />
+    <meta name="keywords" content="forza horizon 6 tracker, communauté forza horizon 6, garage forza horizon 6, builds forza horizon 6, cars forza horizon 6, challenges forza horizon 6, photos forza horizon 6" />
     <meta name="robots" content="index, follow" />
     <meta name="author" content="FH6 Tracker" />
+    <meta name="theme-color" content="#050810" />
+    <link rel="canonical" href="https://forza.zik-music.fr/" />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="FH6 Tracker" />
-    <meta property="og:title" content="FH6 Tracker — La communauté Forza Horizon 6" />
-    <meta property="og:description" content="Suis ta progression dans Forza Horizon 6, gère ton garage, compare tes voitures et rejoins la communauté : events, feed de builds, classements et challenges." />
-    <meta property="og:image" content="/og-image.png" />
+    <meta property="og:url" content="https://forza.zik-music.fr/" />
+    <meta property="og:title" content="FH6 Tracker — Communauté Forza Horizon 6" />
+    <meta property="og:description" content="Suis ta progression dans Forza Horizon 6, gère ton garage avec 600+ voitures, rejoins les events, partage tes builds et participe aux défis hebdomadaires." />
+    <meta property="og:image" content="https://forza.zik-music.fr/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
     <meta property="og:locale" content="fr_FR" />
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="FH6 Tracker — La communauté Forza Horizon 6" />
-    <meta name="twitter:description" content="Suis ta progression dans Forza Horizon 6, gère ton garage et rejoins la communauté." />
-    <meta name="twitter:image" content="/og-image.png" />
+    <meta name="twitter:title" content="FH6 Tracker — Communauté Forza Horizon 6" />
+    <meta name="twitter:description" content="Suis ta progression dans Forza Horizon 6, gère ton garage avec 600+ voitures, rejoins les events, partage tes builds et participe aux défis hebdomadaires." />
+    <meta name="twitter:image" content="https://forza.zik-music.fr/og-image.png" />
 
-    <!-- Apple -->
+    <!-- Apple PWA -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="FH6 Tracker" />
 
+    <!-- JSON-LD : WebSite + SearchAction -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "@id": "https://forza.zik-music.fr/#website",
+          "url": "https://forza.zik-music.fr/",
+          "name": "FH6 Tracker",
+          "description": "Plateforme communautaire pour les joueurs de Forza Horizon 6 : suivi de garage, feed de photos, événements, défis hebdomadaires et classements.",
+          "inLanguage": "fr-FR",
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": {
+              "@type": "EntryPoint",
+              "urlTemplate": "https://forza.zik-music.fr/search?q={search_term_string}"
+            },
+            "query-input": "required name=search_term_string"
+          }
+        },
+        {
+          "@type": "Organization",
+          "@id": "https://forza.zik-music.fr/#organization",
+          "name": "FH6 Tracker",
+          "url": "https://forza.zik-music.fr/",
+          "logo": "https://forza.zik-music.fr/og-image.png"
+        }
+      ]
+    }
+    </script>
+
+    <!-- Polices -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -40,7 +79,40 @@
     />
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Contenu indexable par les robots qui n'exécutent pas JavaScript -->
+      <noscript>
+        <main>
+          <h1>FH6 Tracker — Communauté Forza Horizon 6</h1>
+          <p>FH6 Tracker est la plateforme communautaire dédiée aux joueurs de Forza Horizon 6. Suis ta progression, gère ton garage avec plus de 600 voitures, et retrouve toute la communauté.</p>
+
+          <h2>Feed de photos et builds</h2>
+          <p>Partage tes plus belles photos Horizon Promo, explore les builds des autres joueurs, like et commente les posts de la communauté Forza Horizon 6.</p>
+
+          <h2>Catalogue de voitures Forza Horizon 6</h2>
+          <p>Accède au catalogue complet de plus de 600 voitures disponibles dans Forza Horizon 6. Filtre par classe (D, C, B, A, S1, S2, R, X), par marque, par pays d'origine ou par indice de performance (PI). Suis ta collection, ajoute des voitures à ta wishlist.</p>
+
+          <h2>Événements et classements</h2>
+          <p>Rejoins les événements organisés par la communauté, consulte le classement des joueurs les plus actifs, suis les podiums officiels et décroche des badges exclusifs.</p>
+
+          <h2>Défis hebdomadaires</h2>
+          <p>Chaque semaine, un défi autour d'une voiture spécifique de Forza Horizon 6. Poste une photo de la voiture demandée pour participer automatiquement. Le classement est publié après vérification.</p>
+
+          <h2>Badges et progression</h2>
+          <p>Gagne des badges en progressant dans ta collection, en participant à des événements et en remportant des podiums. Plus de 15 badges à débloquer.</p>
+
+          <nav>
+            <ul>
+              <li><a href="/feed">Feed communautaire</a></li>
+              <li><a href="/catalogue">Catalogue voitures FH6</a></li>
+              <li><a href="/events">Événements</a></li>
+              <li><a href="/leaderboard">Classement</a></li>
+              <li><a href="/auth">Se connecter</a></li>
+            </ul>
+          </nav>
+        </main>
+      </noscript>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

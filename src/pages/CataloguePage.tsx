@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useSEO } from "../hooks/useSEO";
 import { useCatalogueData } from "../features/catalogue/hooks/useCatalogueData";
 import { useCatalogueFilters } from "../features/catalogue/hooks/useCatalogueFilters";
 import { CatalogueStats } from "../features/catalogue/components/CatalogueStats";
@@ -13,7 +13,11 @@ export default function CataloguePage() {
   const { cars, loading, savingCarId, message, getStatus, toggleStatus } = useCatalogueData();
   const filters = useCatalogueFilters({ cars, getStatus });
 
-  useEffect(() => { document.title = "Catalogue — FH6 Tracker"; }, []);
+  useSEO({
+    title: "Catalogue voitures Forza Horizon 6",
+    description: "Catalogue complet de 600+ voitures Forza Horizon 6. Filtrez par classe (D à X), marque, pays et PI. Suivez votre collection et créez votre wishlist.",
+    canonical: "/catalogue",
+  });
 
   if (loading) {
     return (
