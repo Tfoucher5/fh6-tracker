@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useSEO } from "../hooks/useSEO";
 import { CalendarDays, Plus, Clock, CheckCheck } from "lucide-react";
 import { PageLayout } from "../components/PageLayout";
 import { EventCard } from "../features/events/components/EventCard";
@@ -20,7 +21,11 @@ export default function EventsPage() {
   const past = events.filter((e) => isPast(e.event_date));
   const displayedEvents = tab === "upcoming" ? upcoming : past;
 
-  useEffect(() => { document.title = "Événements — FH6 Tracker"; }, []);
+  useSEO({
+    title: "Événements Forza Horizon 6",
+    description: "Rejoignez les événements de la communauté Forza Horizon 6. Participez, grimpez au classement, décrochez des badges exclusifs et des podiums officiels.",
+    canonical: "/events",
+  });
 
   return (
     <PageLayout>

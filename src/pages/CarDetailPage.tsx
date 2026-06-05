@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useSEO } from "../hooks/useSEO";
 import { useParams } from "react-router-dom";
 import { CarDetailHeader } from "../features/cars/components/CarDetailHeader";
 import { CarStatusPanel } from "../features/cars/components/CarStatusPanel";
@@ -31,10 +31,12 @@ export default function CarDetailPage() {
 
   const composer = usePostComposer(() => {});
 
-  useEffect(() => {
-    if (car) document.title = `${car.make} ${car.model}${car.year ? ` (${car.year})` : ""} — FH6 Tracker`;
-    else document.title = "Voiture — FH6 Tracker";
-  }, [car]);
+  useSEO({
+    title: car ? `${car.make} ${car.model}${car.year ? ` (${car.year})` : ""} — Forza Horizon 6` : "Voiture Forza Horizon 6",
+    description: car
+      ? `Fiche complète de la ${car.make} ${car.model}${car.year ? ` ${car.year}` : ""} dans Forza Horizon 6. Classe ${car.car_class ?? "?"}, PI ${car.pi ?? "?"}.`
+      : undefined,
+  });
 
   if (loading) {
     return (

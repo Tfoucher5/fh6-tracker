@@ -10,6 +10,7 @@ import { usePostComposer } from "../features/social/hooks/usePostComposer";
 import { useSavedPosts } from "../features/social/hooks/useSavedPosts";
 import { useAdminRole } from "../hooks/useAdminRole";
 import { useActiveChallenge } from "../features/challenges/useChallenges";
+import { useSEO } from "../hooks/useSEO";
 import { supabase } from "../lib/supabase";
 
 type FilterType = "all" | "following";
@@ -27,7 +28,11 @@ export default function FeedPage() {
   const sentinelRef = useRef<HTMLDivElement>(null);
   const { challenge } = useActiveChallenge(user?.id ?? null);
 
-  useEffect(() => { document.title = "Feed — FH6 Tracker"; }, []);
+  useSEO({
+    title: "Feed Forza Horizon 6",
+    description: "Explore le feed de photos Forza Horizon 6. Découvrez les builds, likez les meilleures photos et rejoignez la communauté FH6 Tracker.",
+    canonical: "/feed",
+  });
 
   // Vérification des badges au chargement (silencieux, idempotent)
   useEffect(() => {

@@ -6,6 +6,7 @@ import { PostCard } from "../features/social/components/PostCard";
 import { useSavedPosts } from "../features/social/hooks/useSavedPosts";
 import { useAdminRole } from "../hooks/useAdminRole";
 import type { ChallengeCar } from "../features/challenges/useChallenges";
+import { useSEO } from "../hooks/useSEO";
 import type { FeedPost } from "../features/social/types";
 import { supabase } from "../lib/supabase";
 
@@ -66,7 +67,7 @@ export default function ChallengePage() {
     if (!ch) { setLoading(false); return; }
     const c = ch as unknown as ChallengeDetail;
     setChallenge(c);
-    document.title = `${c.car ? `${c.car.make} ${c.car.model}` : c.title} — Défi FH6 Tracker`;
+    // Le titre dynamique est géré par useSEO ci-dessous
 
     if (!c.car_id) { setLoading(false); return; }
 
@@ -117,6 +118,15 @@ export default function ChallengePage() {
   function hidePost(postId: string) {
     setPosts((prev) => prev.filter((p) => p.id !== postId));
   }
+
+  useSEO({
+    title: challenge?.car
+      ? `Défi — ${challenge.car.make} ${challenge.car.model} Forza Horizon 6`
+      : "Défi hebdomadaire Forza Horizon 6",
+    description: challenge?.car
+      ? `Défi FH6 Tracker : postez une photo de la ${challenge.car.make} ${challenge.car.model} pour participer. Classement et soumissions en temps réel.`
+      : "Défi hebdomadaire FH6 Tracker : postez une photo de la voiture du moment pour participer au classement communautaire.",
+  });
 
   const isOver = challenge ? new Date(challenge.ends_at) < new Date() : false;
   const remaining = challenge ? timeLeft(challenge.ends_at) : "";
