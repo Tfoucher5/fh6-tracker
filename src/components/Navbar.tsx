@@ -44,13 +44,15 @@ export function Navbar() {
 
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [username, setUsername] = useState<string | null>(null);
   const mobileRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     supabase.auth.getUser().then(async ({ data: { user } }) => {
-      if (!user) return;
+      if (!user) { setIsLoggedIn(false); return; }
+      setIsLoggedIn(true);
       const [{ data: roleData }, { data: profileData }] = await Promise.all([
         supabase.rpc("get_my_role"),
         supabase.from("profiles").select("username").eq("id", user.id).single(),
@@ -134,86 +136,108 @@ export function Navbar() {
             isActive={isActive}
           />
 
-          <Dropdown
-            name="account"
-            label="Compte"
-            items={accountLinks}
-            active={false}
-            openDropdown={openDropdown}
-            toggleDropdown={toggleDropdown}
-            closeMenus={closeMenus}
-            isActive={isActive}
-            footer={
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-red-300 hover:bg-red-500/10 transition-colors"
+          {isLoggedIn ? (
+            <>
+              <Dropdown
+                name="account"
+                label="Compte"
+                items={accountLinks}
+                active={false}
+                openDropdown={openDropdown}
+                toggleDropdown={toggleDropdown}
+                closeMenus={closeMenus}
+                isActive={isActive}
+                footer={
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-red-300 hover:bg-red-500/10 transition-colors"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Déconnexion
+                  </button>
+                }
+              />
+
+              {isAdmin && (
+                <Link
+                  to="/admin"
+                  onClick={closeMenus}
+                  className={`flex items-center justify-center w-9 h-9 rounded-lg transition-colors ${
+                    pathname.startsWith("/admin")
+                      ? "bg-red-600/20 text-red-400"
+                      : "text-slate-500 hover:text-red-400 hover:bg-red-500/10"
+                  }`}
+                  title="Administration"
+                >
+                  <ShieldCheck className="w-4 h-4" />
+                </Link>
+              )}
+
+              <Link
+                to="/inbox"
+                onClick={closeMenus}
+                className={`relative flex items-center justify-center w-9 h-9 rounded-lg transition-colors ${
+                  pathname.startsWith("/inbox")
+                    ? "bg-slate-800 text-white"
+                    : "text-slate-400 hover:text-white hover:bg-slate-800/60"
+                }`}
+                title="Inbox"
               >
-                <LogOut className="w-4 h-4" />
-                Déconnexion
-              </button>
-            }
-          />
-
-          {isAdmin && (
+                <Bell className="w-4 h-4" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] rounded-full bg-red-500 text-[10px] font-black text-white flex items-center justify-center px-1 leading-none">
+                    {unreadCount > 99 ? "99+" : unreadCount}
+                  </span>
+                )}
+              </Link>
+            </>
+          ) : isLoggedIn === false ? (
             <Link
-              to="/admin"
-              onClick={closeMenus}
-              className={`flex items-center justify-center w-9 h-9 rounded-lg transition-colors ${
-                pathname.startsWith("/admin")
-                  ? "bg-red-600/20 text-red-400"
-                  : "text-slate-500 hover:text-red-400 hover:bg-red-500/10"
-              }`}
-              title="Administration"
+              to="/auth"
+              className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-sm font-bold text-white transition-colors"
             >
-              <ShieldCheck className="w-4 h-4" />
+              Se connecter
             </Link>
-          )}
-
-          <Link
-            to="/inbox"
-            onClick={closeMenus}
-            className={`relative flex items-center justify-center w-9 h-9 rounded-lg transition-colors ${
-              pathname.startsWith("/inbox")
-                ? "bg-slate-800 text-white"
-                : "text-slate-400 hover:text-white hover:bg-slate-800/60"
-            }`}
-            title="Inbox"
-          >
-            <Bell className="w-4 h-4" />
-            {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] rounded-full bg-red-500 text-[10px] font-black text-white flex items-center justify-center px-1 leading-none">
-                {unreadCount > 99 ? "99+" : unreadCount}
-              </span>
-            )}
-          </Link>
+          ) : null}
         </nav>
 
         {/* Mobile — bouton "Plus" (secondaire uniquement, nav principale = BottomTabBar) */}
         <div className="md:hidden flex items-center gap-1" ref={mobileRef}>
-          {isAdmin && (
+          {isLoggedIn === false ? (
             <Link
-              to="/admin"
-              onClick={closeMenus}
-              className="flex items-center justify-center w-9 h-9 rounded-lg text-slate-500 hover:text-red-400 transition-colors"
-              title="Administration"
+              to="/auth"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-sm font-bold text-white transition-colors"
             >
-              <ShieldCheck className="w-4 h-4" />
+              Se connecter
             </Link>
+          ) : (
+            <>
+              {isAdmin && (
+                <Link
+                  to="/admin"
+                  onClick={closeMenus}
+                  className="flex items-center justify-center w-9 h-9 rounded-lg text-slate-500 hover:text-red-400 transition-colors"
+                  title="Administration"
+                >
+                  <ShieldCheck className="w-4 h-4" />
+                </Link>
+              )}
+              <button
+                type="button"
+                onClick={() => setMobileOpen((v) => !v)}
+                className="flex items-center justify-center w-10 h-10 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800/70 transition-colors"
+                aria-label={mobileOpen ? "Fermer" : "Plus"}
+              >
+                {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </button>
+            </>
           )}
-          <button
-            type="button"
-            onClick={() => setMobileOpen((v) => !v)}
-            className="flex items-center justify-center w-10 h-10 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800/70 transition-colors"
-            aria-label={mobileOpen ? "Fermer" : "Plus"}
-          >
-            {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
         </div>
       </div>
 
-      {/* Mobile menu — nav secondaire + déconnexion */}
-      {mobileOpen && (
+      {/* Mobile menu — nav secondaire + déconnexion (uniquement si connecté) */}
+      {mobileOpen && isLoggedIn && (
         <div className="md:hidden border-t border-slate-800/60 bg-[#050810]/98 backdrop-blur-sm">
           <div className="px-4 py-3 space-y-1">
             <p className="px-2 pt-1 pb-2 text-[10px] font-bold uppercase tracking-[0.3em] text-slate-600">
