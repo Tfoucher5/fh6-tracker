@@ -12,7 +12,7 @@ type FilterType = "all" | "following";
 export default function FeedPage() {
   const [filter, setFilter] = useState<FilterType>("all");
   const {
-    user, posts, loading, loadingMore, hasMore,
+    user, posts, loading, loadingMore, hasMore, error,
     loadMore, toggleLike, incrementCommentCount, deletePost, addPost,
   } = useFeed(filter);
   const composer = usePostComposer(addPost);
@@ -61,6 +61,11 @@ export default function FeedPage() {
           {/* Feed */}
           {loading ? (
             <LoadingState />
+          ) : error ? (
+            <div className="flex flex-col items-center justify-center py-20 gap-3 text-center">
+              <p className="font-heading font-bold text-lg uppercase text-red-500">Erreur de chargement</p>
+              <p className="text-sm text-slate-600 max-w-xs font-mono">{error}</p>
+            </div>
           ) : posts.length === 0 ? (
             <EmptyState filter={filter} userId={user?.id ?? null} onPost={() => composer.setIsOpen(true)} />
           ) : (
