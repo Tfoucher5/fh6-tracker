@@ -15,6 +15,7 @@ import WishlistPage from "./pages/WishlistPage";
 import LeaderboardPage from "./pages/LeaderboardPage";
 import BannedPage from "./pages/BannedPage";
 import AdminPage from "./pages/AdminPage";
+import NotFoundPage from "./pages/NotFoundPage";
 import { NotificationToast } from "./features/notifications/components/NotificationToast";
 import { StatusGate } from "./components/StatusGate";
 import { CommunityGuard } from "./components/CommunityGuard";
@@ -45,6 +46,8 @@ export default function App() {
             <Route path="/inbox" element={<InboxPage />} />
             <Route path="/search" element={<SearchPage />} />
           </Route>
+
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
         <NotificationToast />
       </StatusGate>
