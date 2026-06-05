@@ -8,6 +8,7 @@ import { ClassBadge } from "../../../components/ClassBadge";
 import { LightboxTrigger, PostLightbox } from "./PostLightbox";
 import { ReportModal } from "./ReportModal";
 import { supabase } from "../../../lib/supabase";
+import { transformImage } from "../../../lib/imageTransform";
 
 type PostCardProps = {
   post: FeedPost;
@@ -111,15 +112,15 @@ export function PostCard({ post, currentUserId, isSaved = false, isAdmin = false
               </button>
             </div>
           ) : (
-            <button onClick={() => setConfirmDelete(true)} className="text-slate-700 hover:text-red-500 transition-colors shrink-0">
+            <button onClick={() => setConfirmDelete(true)} aria-label="Supprimer ce post" className="text-slate-700 hover:text-red-500 transition-colors shrink-0">
               <Trash2 className="w-4 h-4" />
             </button>
           )
         ) : currentUserId ? (
           <button
             onClick={() => setShowReport(true)}
+            aria-label="Signaler ce post"
             className="text-slate-700 hover:text-red-500 transition-colors shrink-0"
-            title="Signaler ce post"
           >
             <Flag className="w-4 h-4" />
           </button>
@@ -130,7 +131,7 @@ export function PostCard({ post, currentUserId, isSaved = false, isAdmin = false
       {imageUrl ? (
         <LightboxTrigger src={imageUrl} alt={post.car ? `${post.car.make} ${post.car.model}` : "Post"} onOpen={setLightbox}>
           <img
-            src={imageUrl}
+            src={transformImage(imageUrl, 900) ?? imageUrl}
             alt={post.car ? `${post.car.make} ${post.car.model}` : "Post"}
             loading="lazy"
             decoding="async"
@@ -158,6 +159,7 @@ export function PostCard({ post, currentUserId, isSaved = false, isAdmin = false
         {/* Actions */}
         <div className="flex items-center gap-4">
           <button
+            aria-label={liked ? "Retirer le like" : "Liker ce post"}
             onClick={() => currentUserId ? onLike(post.id) : navigate("/auth")}
             className={`flex items-center gap-1.5 transition-colors ${
               liked ? "text-red-500" : "text-slate-500 hover:text-red-400"
@@ -168,6 +170,7 @@ export function PostCard({ post, currentUserId, isSaved = false, isAdmin = false
           </button>
 
           <button
+            aria-label={showComments ? "Masquer les commentaires" : "Voir les commentaires"}
             onClick={() => currentUserId ? setShowComments((v) => !v) : navigate("/auth")}
             className="flex items-center gap-1.5 text-slate-500 hover:text-slate-300 transition-colors"
           >
@@ -177,6 +180,7 @@ export function PostCard({ post, currentUserId, isSaved = false, isAdmin = false
 
           {currentUserId && onSave && (
             <button
+              aria-label={isSaved ? "Retirer des favoris" : "Sauvegarder ce post"}
               onClick={() => onSave(post.id)}
               className={`ml-auto flex items-center gap-1.5 transition-colors ${
                 isSaved ? "text-amber-400" : "text-slate-500 hover:text-amber-400"

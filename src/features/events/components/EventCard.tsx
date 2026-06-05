@@ -55,9 +55,9 @@ export function EventCard({ event, isParticipating, onJoin, onLeave, currentUser
         {/* Info */}
         <div className="flex-1 min-w-0 space-y-2">
           <div className="flex items-start gap-2">
-            <h3 className="font-heading font-bold text-lg uppercase tracking-wide text-white leading-tight flex-1 truncate">
+            <h2 className="font-heading font-bold text-lg uppercase tracking-wide text-white leading-tight flex-1 truncate">
               {event.title}
-            </h3>
+            </h2>
             {isParticipating && (
               <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
             )}

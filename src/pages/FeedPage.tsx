@@ -26,7 +26,7 @@ export default function FeedPage() {
   const adminRole = useAdminRole();
   const isAdmin = adminRole !== null;
   const sentinelRef = useRef<HTMLDivElement>(null);
-  const { challenge } = useActiveChallenge(user?.id ?? null);
+  const { challenge, loading: challengeLoading } = useActiveChallenge(user?.id ?? null);
 
   useSEO({
     title: "Feed Forza Horizon 6",
@@ -73,13 +73,15 @@ export default function FeedPage() {
             )}
           </div>
 
-          {/* Défi de la semaine */}
-          {challenge && (
+          {/* Défi de la semaine — skeleton pendant le chargement pour éviter CLS */}
+          {challengeLoading ? (
+            <div className="h-24 rounded-2xl bg-slate-900/40 border border-slate-800/60 animate-pulse" />
+          ) : challenge ? (
             <ChallengeCard
               challenge={challenge}
               isParticipating={challenge.is_participating}
             />
-          )}
+          ) : null}
 
           {/* Trending */}
           {filter === "all" && <TrendingSection />}
