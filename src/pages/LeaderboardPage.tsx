@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Trophy, Rss, Users } from "lucide-react";
+import { Trophy, Rss, Users, Flame } from "lucide-react";
 import { PageLayout } from "../components/PageLayout";
 import { UserAvatar } from "../features/social/components/UserAvatar";
 import { supabase } from "../lib/supabase";
@@ -11,13 +11,15 @@ type LeaderEntry = {
   display_name: string | null;
   avatar_url: string | null;
   score: number;
+  best_streak?: number;
 };
 
-type Tab = "posts" | "followers";
+type Tab = "posts" | "followers" | "streaks";
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode; fn: string; unit: string; color: string }[] = [
-  { id: "posts",     label: "Posts",   icon: <Rss className="w-4 h-4" />,   fn: "leaderboard_posts",     unit: "post",   color: "text-blue-400" },
+  { id: "posts",     label: "Posts",   icon: <Rss className="w-4 h-4" />,   fn: "leaderboard_posts",     unit: "post",  color: "text-blue-400" },
   { id: "followers", label: "Abonnés", icon: <Users className="w-4 h-4" />, fn: "leaderboard_followers", unit: "abonné", color: "text-violet-400" },
+  { id: "streaks",   label: "Streaks", icon: <Flame className="w-4 h-4" />, fn: "leaderboard_streaks",   unit: "jour",  color: "text-orange-400" },
 ];
 
 const RANK_COLORS = ["text-amber-400", "text-slate-400", "text-orange-600"];
@@ -25,7 +27,7 @@ const RANK_COLORS = ["text-amber-400", "text-slate-400", "text-orange-600"];
 export default function LeaderboardPage() {
   const [tab, setTab] = useState<Tab>("posts");
   const [data, setData] = useState<Record<Tab, LeaderEntry[] | null>>({
-    posts: null, followers: null,
+    posts: null, followers: null, streaks: null,
   });
   const [loading, setLoading] = useState(false);
 
@@ -44,6 +46,7 @@ export default function LeaderboardPage() {
 
   const current = TABS.find((t_) => t_.id === tab)!;
   const rows = data[tab];
+  const isStreaks = tab === "streaks";
 
   return (
     <PageLayout>
@@ -79,10 +82,10 @@ export default function LeaderboardPage() {
           {loading ? (
             <LoadingSkeleton />
           ) : !rows || rows.length === 0 ? (
-            <EmptyState />
+            <EmptyState isStreaks={isStreaks} />
           ) : (
             <div className="space-y-2">
-              {/* Top 3 podium — seulement si ≥ 3 entrées */}
+              {/* Top 3 podium */}
               {rows.length >= 3 && (
                 <div className="grid grid-cols-3 gap-3 mb-6">
                   {[rows[1], rows[0], rows[2]].map((entry, podiumIdx) => {
@@ -125,7 +128,7 @@ export default function LeaderboardPage() {
                 </div>
               )}
 
-              {/* Liste : top 3 si pas de podium, reste sinon */}
+              {/* Liste */}
               {(rows.length >= 3 ? rows.slice(3) : rows).map((entry, i) => (
                 <Link
                   key={entry.user_id}
@@ -151,9 +154,15 @@ export default function LeaderboardPage() {
                     <p className={`font-heading font-black text-xl ${current.color}`}>
                       {entry.score}
                     </p>
-                    <p className="text-[10px] text-slate-600 uppercase tracking-wider">
-                      {current.unit}{Number(entry.score) > 1 ? "s" : ""}
-                    </p>
+                    {isStreaks && entry.best_streak != null ? (
+                      <p className="text-[10px] text-slate-600">
+                        record : {entry.best_streak}j
+                      </p>
+                    ) : (
+                      <p className="text-[10px] text-slate-600 uppercase tracking-wider">
+                        {current.unit}{Number(entry.score) > 1 ? "s" : ""}
+                      </p>
+                    )}
                   </div>
                 </Link>
               ))}
@@ -184,12 +193,16 @@ function LoadingSkeleton() {
   );
 }
 
-function EmptyState() {
+function EmptyState({ isStreaks }: { isStreaks: boolean }) {
   return (
     <div className="flex flex-col items-center justify-center py-20 gap-3 text-center">
       <Trophy className="w-12 h-12 text-slate-700" />
       <p className="font-heading font-bold text-xl uppercase text-slate-500">Pas encore de données</p>
-      <p className="text-sm text-slate-600 max-w-xs">Sois le premier à rejoindre le classement !</p>
+      <p className="text-sm text-slate-600 max-w-xs">
+        {isStreaks
+          ? "Poste une photo ou crée un événement pour démarrer ta streak !"
+          : "Sois le premier à rejoindre le classement !"}
+      </p>
     </div>
   );
 }

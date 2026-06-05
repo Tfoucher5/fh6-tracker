@@ -19,6 +19,7 @@ export function useFeed(filter: "all" | "following") {
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const filterRef = useRef(filter);
   filterRef.current = filter;
 
@@ -51,7 +52,13 @@ export function useFeed(filter: "all" | "following") {
       }
 
       const { data, error } = await query;
-      if (error || !data) return;
+      if (error) {
+        console.error("[useFeed] query error:", error);
+        setError(error.message);
+        return;
+      }
+      if (!data) return;
+      setError(null);
 
       const newPosts = data as unknown as FeedPost[];
       if (reset) {
@@ -150,6 +157,7 @@ export function useFeed(filter: "all" | "following") {
     loading,
     loadingMore,
     hasMore,
+    error,
     loadMore,
     toggleLike,
     incrementCommentCount,

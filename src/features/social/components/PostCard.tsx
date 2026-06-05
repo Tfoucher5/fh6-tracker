@@ -39,6 +39,9 @@ export function PostCard({ post, currentUserId, isSaved = false, onLike, onDelet
   const isOwner = post.user_id === currentUserId;
   const imageUrl = post.photo_url ?? post.car?.image_url;
 
+  // Guard: profile can be null if RLS blocks visibility (shouldn't happen after fix, but defensive)
+  if (!post.profile) return null;
+
   return (
     <article className="bg-slate-900/60 border border-slate-800/80 rounded-2xl overflow-hidden">
       {/* Header */}

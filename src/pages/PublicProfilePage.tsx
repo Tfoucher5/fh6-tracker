@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Car, GamepadIcon, LayoutGrid, Image, UserPlus, UserCheck, Loader2, GitCompare } from "lucide-react";
+import { ArrowLeft, Car, GamepadIcon, LayoutGrid, Image, UserPlus, UserCheck, Loader2, GitCompare, Flame, Trophy } from "lucide-react";
 import { PageLayout } from "../components/PageLayout";
 import { UserAvatar } from "../features/social/components/UserAvatar";
 import { PostCard } from "../features/social/components/PostCard";
@@ -18,6 +18,9 @@ type PublicProfile = {
   banner_url: string | null;
   bio: string | null;
   is_public: boolean;
+  current_streak: number;
+  best_streak: number;
+  last_valid_activity_at: string | null;
 };
 
 type OwnedCar = {
@@ -82,7 +85,7 @@ export default function PublicProfilePage() {
     setLoading(true);
     const { data, error } = await supabase
       .from("profiles")
-      .select("id, username, display_name, avatar_url, banner_url, xbox_gamertag, bio, is_public")
+      .select("id, username, display_name, avatar_url, banner_url, xbox_gamertag, bio, is_public, current_streak, best_streak, last_valid_activity_at")
       .eq("username", uname)
       .maybeSingle();
 
@@ -263,6 +266,24 @@ export default function PublicProfilePage() {
                 <Stat value={following} label="Abonnements" />
                 <Stat value={postCount} label="Posts" />
               </div>
+
+              {/* Streak */}
+              {profile.current_streak > 0 && (
+                <div className="flex items-center gap-4 pt-3 border-t border-slate-800/60">
+                  <div className="flex items-center gap-1.5">
+                    <Flame className="w-4 h-4 text-orange-400" />
+                    <span className="font-heading font-black text-lg text-orange-400">{profile.current_streak}</span>
+                    <span className="text-xs text-slate-500">j de streak</span>
+                  </div>
+                  {profile.best_streak > profile.current_streak && (
+                    <div className="flex items-center gap-1.5">
+                      <Trophy className="w-4 h-4 text-amber-400" />
+                      <span className="font-heading font-bold text-base text-amber-400">{profile.best_streak}</span>
+                      <span className="text-xs text-slate-500">record</span>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Bio */}
               {profile.bio && (

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -14,6 +14,7 @@ import {
   X,
   ChevronDown,
   Car,
+  ShieldCheck,
 } from "lucide-react";
 import { useUnreadCount } from "../features/notifications/hooks/useUnreadCount";
 import { supabase } from "../lib/supabase";
@@ -48,6 +49,13 @@ export function Navbar() {
 
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    supabase.rpc("get_my_role").then(({ data }) => {
+      setIsAdmin(data === "admin" || data === "owner");
+    });
+  }, []);
 
   const isActive = (to: string) => {
     return to === "/" ? pathname === "/" : pathname.startsWith(to);
@@ -142,6 +150,21 @@ export function Navbar() {
             }
           />
 
+          {isAdmin && (
+            <Link
+              to="/admin"
+              onClick={closeMenus}
+              className={`flex items-center justify-center w-9 h-9 rounded-lg transition-colors ${
+                pathname.startsWith("/admin")
+                  ? "bg-red-600/20 text-red-400"
+                  : "text-slate-500 hover:text-red-400 hover:bg-red-500/10"
+              }`}
+              title="Administration"
+            >
+              <ShieldCheck className="w-4 h-4" />
+            </Link>
+          )}
+
           <Link
             to="/inbox"
             onClick={closeMenus}
@@ -209,6 +232,14 @@ export function Navbar() {
                   unreadCount={item.to === "/inbox" ? unreadCount : undefined}
                 />
               ))}
+
+              {isAdmin && (
+                <MobileLink
+                  item={{ to: "/admin", label: "Administration", icon: ShieldCheck }}
+                  active={isActive("/admin")}
+                  onClick={closeMenus}
+                />
+              )}
 
               <button
                 type="button"
