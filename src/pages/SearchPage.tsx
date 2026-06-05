@@ -29,6 +29,8 @@ type Tab = "cars" | "users";
 export default function SearchPage() {
   const [query, setQuery] = useState("");
   const [tab, setTab] = useState<Tab>("cars");
+
+  useEffect(() => { document.title = "Recherche — FH6 Tracker"; }, []);
   const [cars, setCars] = useState<CarResult[]>([]);
   const [users, setUsers] = useState<UserResult[]>([]);
   const [loading, setLoading] = useState(false);

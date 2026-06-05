@@ -90,6 +90,13 @@ function normalizeClassAndPi(value: string | null | undefined) {
   };
 }
 
+function stripMakePrefix(make: string, model: string): string {
+  if (model.toLowerCase().startsWith(make.toLowerCase() + " ")) {
+    return model.slice(make.length + 1).trim();
+  }
+  return model;
+}
+
 function normalizeCarFromObject(obj: Record<string, unknown>): CarInput | null {
   const keys = Object.keys(obj);
 
@@ -115,7 +122,8 @@ function normalizeCarFromObject(obj: Record<string, unknown>): CarInput | null {
     return null;
   }
 
-  const { year, model } = parseYearAndModel(carName);
+  const { year, model: rawModel } = parseYearAndModel(carName);
+  const model = stripMakePrefix(make, rawModel);
 
   const carType = pick(["cartype", "type", "category"]);
   const classRaw = pick(["carclass", "class", "pi"]);
@@ -228,7 +236,8 @@ function extractCarsFromHtmlTable(html: string) {
 
     if (!make || !carName || make.toLowerCase() === "make") continue;
 
-    const { year, model } = parseYearAndModel(carName);
+    const { year, model: rawModel } = parseYearAndModel(carName);
+    const model = stripMakePrefix(make, rawModel);
     const { car_class, pi } = normalizeClassAndPi(classRaw);
 
     cars.push({

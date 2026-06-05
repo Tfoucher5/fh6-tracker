@@ -5,7 +5,7 @@ import type { CreateEventInput, FHEvent } from "../types";
 
 const EVENT_SELECT = `
   *,
-  profile:profiles(username, display_name, avatar_url),
+  profile:profiles!events_creator_id_fkey(username, display_name, avatar_url),
   event_participants(user_id)
 ` as const;
 
@@ -26,6 +26,7 @@ export function useEvents() {
     const { data } = await supabase
       .from("events")
       .select(EVENT_SELECT)
+      .not("status", "in", '("hidden","deleted")')
       .order("event_date", { ascending: true });
 
     setEvents((data ?? []) as unknown as FHEvent[]);

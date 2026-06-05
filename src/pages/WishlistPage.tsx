@@ -20,6 +20,8 @@ export default function WishlistPage() {
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
 
+  useEffect(() => { document.title = "Wishlist — FH6 Tracker"; }, []);
+
   useEffect(() => {
     (async () => {
       const { data: { user } } = await supabase.auth.getUser();

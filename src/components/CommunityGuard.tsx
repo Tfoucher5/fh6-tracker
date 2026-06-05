@@ -42,7 +42,7 @@ export function CommunityGuard() {
           </div>
           <div className="flex gap-3 justify-center">
             <Link
-              to="/"
+              to="/dashboard"
               className="rounded-xl bg-slate-800 hover:bg-slate-700 px-4 py-2.5 text-sm font-bold text-white transition-colors"
             >
               Dashboard

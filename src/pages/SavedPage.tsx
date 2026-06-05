@@ -21,6 +21,8 @@ export default function SavedPage() {
   const [postsLoading, setPostsLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
+  useEffect(() => { document.title = "Posts sauvegardés — FH6 Tracker"; }, []);
+
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setCurrentUserId(data.user?.id ?? null));
   }, []);

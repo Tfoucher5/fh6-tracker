@@ -44,6 +44,7 @@ export function useFeed(filter: "all" | "following") {
       let query = supabase
         .from("posts")
         .select(POST_SELECT)
+        .eq("status", "published")
         .order("created_at", { ascending: false })
         .range(offset, offset + PAGE_SIZE - 1);
 
@@ -147,6 +148,10 @@ export function useFeed(filter: "all" | "following") {
       });
   }
 
+  function removePostFromFeed(postId: string) {
+    setPosts((prev) => prev.filter((p) => p.id !== postId));
+  }
+
   function addPost(post: FeedPost) {
     setPosts((prev) => [post, ...prev]);
   }
@@ -162,6 +167,7 @@ export function useFeed(filter: "all" | "following") {
     toggleLike,
     incrementCommentCount,
     deletePost,
+    removePostFromFeed,
     addPost,
   };
 }

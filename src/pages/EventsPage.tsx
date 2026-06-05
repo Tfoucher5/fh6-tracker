@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CalendarDays, Plus, Clock, CheckCheck } from "lucide-react";
 import { PageLayout } from "../components/PageLayout";
 import { EventCard } from "../features/events/components/EventCard";
@@ -19,6 +19,8 @@ export default function EventsPage() {
   const upcoming = events.filter((e) => !isPast(e.event_date));
   const past = events.filter((e) => isPast(e.event_date));
   const displayedEvents = tab === "upcoming" ? upcoming : past;
+
+  useEffect(() => { document.title = "Événements — FH6 Tracker"; }, []);
 
   return (
     <PageLayout>

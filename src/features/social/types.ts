@@ -6,6 +6,7 @@ export type FeedPost = {
   storage_path: string | null;
   caption: string | null;
   created_at: string;
+  status: string;
   profile: {
     id: string;
     username: string;
@@ -32,11 +33,13 @@ export type PostComment = {
   content: string;
   created_at: string;
   parent_id: string | null;
+  status: string;
   profile: {
     username: string;
     display_name: string | null;
     avatar_url: string | null;
   };
+  comment_likes: { user_id: string }[];
   replies?: PostComment[];
 };
 

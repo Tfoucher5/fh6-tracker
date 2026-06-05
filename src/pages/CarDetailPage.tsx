@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { CarDetailHeader } from "../features/cars/components/CarDetailHeader";
 import { CarStatusPanel } from "../features/cars/components/CarStatusPanel";
@@ -29,6 +30,11 @@ export default function CarDetailPage() {
   } = useCarDetail(id);
 
   const composer = usePostComposer(() => {});
+
+  useEffect(() => {
+    if (car) document.title = `${car.make} ${car.model}${car.year ? ` (${car.year})` : ""} — FH6 Tracker`;
+    else document.title = "Voiture — FH6 Tracker";
+  }, [car]);
 
   if (loading) {
     return (

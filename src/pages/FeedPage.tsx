@@ -3,9 +3,14 @@ import { Rss, Plus, Users, Globe } from "lucide-react";
 import { PageLayout } from "../components/PageLayout";
 import { PostCard } from "../features/social/components/PostCard";
 import { PostComposer } from "../features/social/components/PostComposer";
+import { TrendingSection } from "../features/social/components/TrendingSection";
+import { ChallengeCard } from "../features/challenges/ChallengeCard";
 import { useFeed } from "../features/social/hooks/useFeed";
 import { usePostComposer } from "../features/social/hooks/usePostComposer";
 import { useSavedPosts } from "../features/social/hooks/useSavedPosts";
+import { useAdminRole } from "../hooks/useAdminRole";
+import { useActiveChallenge } from "../features/challenges/useChallenges";
+import { supabase } from "../lib/supabase";
 
 type FilterType = "all" | "following";
 
@@ -13,11 +18,22 @@ export default function FeedPage() {
   const [filter, setFilter] = useState<FilterType>("all");
   const {
     user, posts, loading, loadingMore, hasMore, error,
-    loadMore, toggleLike, incrementCommentCount, deletePost, addPost,
+    loadMore, toggleLike, incrementCommentCount, deletePost, removePostFromFeed, addPost,
   } = useFeed(filter);
   const composer = usePostComposer(addPost);
   const { savedIds, toggleSave } = useSavedPosts();
+  const adminRole = useAdminRole();
+  const isAdmin = adminRole !== null;
   const sentinelRef = useRef<HTMLDivElement>(null);
+  const { challenge } = useActiveChallenge(user?.id ?? null);
+
+  useEffect(() => { document.title = "Feed — FH6 Tracker"; }, []);
+
+  // Vérification des badges au chargement (silencieux, idempotent)
+  useEffect(() => {
+    if (!user) return;
+    supabase.rpc("check_and_grant_badges", { p_user_id: user.id });
+  }, [user?.id]);
 
   // Infinite scroll via IntersectionObserver
   useEffect(() => {
@@ -52,6 +68,17 @@ export default function FeedPage() {
             )}
           </div>
 
+          {/* Défi de la semaine */}
+          {challenge && (
+            <ChallengeCard
+              challenge={challenge}
+              isParticipating={challenge.is_participating}
+            />
+          )}
+
+          {/* Trending */}
+          {filter === "all" && <TrendingSection />}
+
           {/* Filter tabs */}
           <div className="flex gap-1 bg-slate-900/60 border border-slate-800/80 rounded-xl p-1">
             <TabButton active={filter === "all"} onClick={() => setFilter("all")} icon={<Globe className="w-4 h-4" />} label="Tous" />
@@ -70,18 +97,29 @@ export default function FeedPage() {
             <EmptyState filter={filter} userId={user?.id ?? null} onPost={() => composer.setIsOpen(true)} />
           ) : (
             <div className="space-y-4">
-              {posts.map((post) => (
-                <PostCard
-                  key={post.id}
-                  post={post}
-                  currentUserId={user?.id ?? null}
-                  isSaved={savedIds.has(post.id)}
-                  onLike={toggleLike}
-                  onDelete={deletePost}
-                  onSave={toggleSave}
-                  onCommentAdded={incrementCommentCount}
-                />
-              ))}
+              {posts.map((post) => {
+                const isChallengeEntry = !!(
+                  challenge?.car_id &&
+                  post.car_id === challenge.car_id &&
+                  post.created_at >= challenge.starts_at &&
+                  post.created_at <= challenge.ends_at
+                );
+                return (
+                  <PostCard
+                    key={post.id}
+                    post={post}
+                    currentUserId={user?.id ?? null}
+                    isSaved={savedIds.has(post.id)}
+                    isAdmin={isAdmin}
+                    isChallengeEntry={isChallengeEntry}
+                    onLike={toggleLike}
+                    onDelete={deletePost}
+                    onAdminHide={removePostFromFeed}
+                    onSave={toggleSave}
+                    onCommentAdded={incrementCommentCount}
+                  />
+                );
+              })}
 
               {/* Sentinel for infinite scroll */}
               <div ref={sentinelRef} className="h-4" />

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useCatalogueData } from "../features/catalogue/hooks/useCatalogueData";
 import { useCatalogueFilters } from "../features/catalogue/hooks/useCatalogueFilters";
 import { CatalogueStats } from "../features/catalogue/components/CatalogueStats";
@@ -11,6 +12,8 @@ import { PageLayout } from "../components/PageLayout";
 export default function CataloguePage() {
   const { cars, loading, savingCarId, message, getStatus, toggleStatus } = useCatalogueData();
   const filters = useCatalogueFilters({ cars, getStatus });
+
+  useEffect(() => { document.title = "Catalogue — FH6 Tracker"; }, []);
 
   if (loading) {
     return (

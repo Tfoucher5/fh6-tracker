@@ -1,10 +1,15 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Car, GamepadIcon, LayoutGrid, Image, UserPlus, UserCheck, Loader2, GitCompare, Flame, Trophy } from "lucide-react";
+import { ArrowLeft, Car, GamepadIcon, LayoutGrid, Image, UserPlus, UserCheck, Loader2, GitCompare, Flame, Trophy, Flag, Medal } from "lucide-react";
+import { ReportModal } from "../features/social/components/ReportModal";
+import { useAdminRole } from "../hooks/useAdminRole";
 import { PageLayout } from "../components/PageLayout";
 import { UserAvatar } from "../features/social/components/UserAvatar";
 import { PostCard } from "../features/social/components/PostCard";
 import { ClassBadge } from "../components/ClassBadge";
+import { BadgeCard } from "../features/badges/BadgeCard";
+import { BADGE_DEFINITIONS, TIER_LABELS } from "../features/badges/badgeDefinitions";
+import type { BadgeTier } from "../features/badges/badgeDefinitions";
 import { useFollows } from "../features/social/hooks/useFollows";
 import { supabase } from "../lib/supabase";
 import type { FeedPost } from "../features/social/types";
@@ -33,7 +38,8 @@ type OwnedCar = {
   image_url: string | null;
 };
 
-type TabType = "posts" | "garage" | "compare";
+type TabType = "posts" | "garage" | "compare" | "badges";
+type EarnedBadge = { badge_id: string; earned_at: string };
 
 const POST_SELECT = `
   id, user_id, car_id, photo_url, storage_path, caption, created_at,
@@ -57,6 +63,11 @@ export default function PublicProfilePage() {
   const [postCount, setPostCount] = useState(0);
   const [myCarIds, setMyCarIds] = useState<Set<string> | null>(null);
   const [compareLoading, setCompareLoading] = useState(false);
+  const [earnedBadges, setEarnedBadges] = useState<EarnedBadge[]>([]);
+  const [badgesLoading, setBadgesLoading] = useState(false);
+  const [showReport, setShowReport] = useState(false);
+  const adminRole = useAdminRole();
+  const isAdmin = adminRole !== null;
 
   const {
     currentUserId: followCurrentUserId,
@@ -79,7 +90,19 @@ export default function PublicProfilePage() {
     if (tab === "posts") loadPosts(profile.id);
     else if (tab === "garage") loadGarage(profile.id);
     else if (tab === "compare") loadCompare(profile.id);
+    else if (tab === "badges") loadBadges(profile.id);
   }, [profile, tab]);
+
+  async function loadBadges(userId: string) {
+    setBadgesLoading(true);
+    const { data } = await supabase
+      .from("user_badges")
+      .select("badge_id, earned_at")
+      .eq("user_id", userId)
+      .order("earned_at", { ascending: true });
+    setEarnedBadges((data ?? []) as EarnedBadge[]);
+    setBadgesLoading(false);
+  }
 
   async function loadProfile(uname: string) {
     setLoading(true);
@@ -91,9 +114,10 @@ export default function PublicProfilePage() {
 
     if (error || !data) {
       setNotFound(true);
+      document.title = "Profil introuvable — FH6 Tracker";
     } else {
       setProfile(data);
-      // load post count
+      document.title = `${data.display_name ?? data.username} (@${data.username}) — FH6 Tracker`;
       supabase
         .from("posts")
         .select("*", { count: "exact", head: true })
@@ -109,6 +133,7 @@ export default function PublicProfilePage() {
       .from("posts")
       .select(POST_SELECT)
       .eq("user_id", userId)
+      .eq("status", "published")
       .order("created_at", { ascending: false })
       .limit(30);
     setPosts((data ?? []) as unknown as FeedPost[]);
@@ -183,6 +208,7 @@ export default function PublicProfilePage() {
   const canFollow = initialized && followCurrentUserId && followCurrentUserId !== profile.id;
 
   return (
+    <>
     <PageLayout>
       <div className="px-4 py-8">
         <div className="max-w-3xl mx-auto space-y-6">
@@ -224,26 +250,39 @@ export default function PublicProfilePage() {
                   >
                     Modifier
                   </Link>
-                ) : canFollow ? (
-                  <button
-                    onClick={toggleFollow}
-                    disabled={followLoading}
-                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-colors disabled:opacity-60 ${
-                      isFollowing
-                        ? "bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700"
-                        : "bg-red-600 hover:bg-red-500 text-white"
-                    }`}
-                  >
-                    {followLoading ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : isFollowing ? (
-                      <UserCheck className="w-4 h-4" />
-                    ) : (
-                      <UserPlus className="w-4 h-4" />
+                ) : (
+                  <div className="flex items-center gap-2">
+                    {canFollow && (
+                      <button
+                        onClick={toggleFollow}
+                        disabled={followLoading}
+                        className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-colors disabled:opacity-60 ${
+                          isFollowing
+                            ? "bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700"
+                            : "bg-red-600 hover:bg-red-500 text-white"
+                        }`}
+                      >
+                        {followLoading ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : isFollowing ? (
+                          <UserCheck className="w-4 h-4" />
+                        ) : (
+                          <UserPlus className="w-4 h-4" />
+                        )}
+                        {isFollowing ? "Abonné" : "Suivre"}
+                      </button>
                     )}
-                    {isFollowing ? "Abonné" : "Suivre"}
-                  </button>
-                ) : null}
+                    {currentUserId && (
+                      <button
+                        onClick={() => setShowReport(true)}
+                        className="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-slate-800/80 hover:bg-slate-700 border border-slate-700/60 text-slate-500 hover:text-red-500 transition-colors"
+                        title="Signaler ce profil"
+                      >
+                        <Flag className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Nom + gamertag */}
@@ -296,13 +335,22 @@ export default function PublicProfilePage() {
           <div className="flex gap-1 bg-slate-900/60 border border-slate-800/80 rounded-xl p-1">
             <TabButton active={tab === "posts"} onClick={() => setTab("posts")} icon={<Image className="w-4 h-4" />} label="Posts" />
             <TabButton active={tab === "garage"} onClick={() => setTab("garage")} icon={<LayoutGrid className="w-4 h-4" />} label={`Garage${ownedCars.length > 0 ? ` (${ownedCars.length})` : ""}`} />
+            <TabButton active={tab === "badges"} onClick={() => setTab("badges")} icon={<Medal className="w-4 h-4" />} label="Badges" />
             {!isOwnProfile && currentUserId && (
               <TabButton active={tab === "compare"} onClick={() => setTab("compare")} icon={<GitCompare className="w-4 h-4" />} label="Comparer" />
             )}
           </div>
 
           {/* Content */}
-          {tab === "compare" ? (
+          {tab === "badges" ? (
+            badgesLoading ? (
+              <div className="flex justify-center py-12">
+                <div className="w-6 h-6 border-2 border-slate-700 border-t-red-500 rounded-full animate-spin" />
+              </div>
+            ) : (
+              <BadgesCollection earnedBadges={earnedBadges} />
+            )
+          ) : tab === "compare" ? (
             compareLoading || myCarIds === null ? (
               <LoadingGarage />
             ) : (
@@ -320,8 +368,10 @@ export default function PublicProfilePage() {
                     key={post.id}
                     post={post}
                     currentUserId={currentUserId}
+                    isAdmin={isAdmin}
                     onLike={() => {}}
-                    onDelete={() => {}}
+                    onDelete={(id) => setPosts((prev) => prev.filter((p) => p.id !== id))}
+                    onAdminHide={(id) => setPosts((prev) => prev.filter((p) => p.id !== id))}
                     onCommentAdded={() => {}}
                   />
                 ))}
@@ -366,6 +416,60 @@ export default function PublicProfilePage() {
         </div>
       </div>
     </PageLayout>
+
+    {showReport && (
+      <ReportModal targetType="profile" targetId={profile.id} onClose={() => setShowReport(false)} />
+    )}
+  </>
+  );
+}
+
+const TIER_ORDER: BadgeTier[] = ["red", "gold", "silver", "bronze"];
+
+function BadgesCollection({ earnedBadges }: { earnedBadges: EarnedBadge[] }) {
+  const earnedMap = Object.fromEntries(earnedBadges.map((b) => [b.badge_id, b.earned_at]));
+  const earnedCount = earnedBadges.length;
+  const totalCount = BADGE_DEFINITIONS.length;
+
+  return (
+    <div className="space-y-6">
+      {/* Counter */}
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-slate-500">
+          <span className="font-bold text-white">{earnedCount}</span> badge{earnedCount !== 1 ? "s" : ""} gagné{earnedCount !== 1 ? "s" : ""} sur {totalCount}
+        </p>
+        {/* Progress bar */}
+        <div className="w-32 h-1.5 rounded-full bg-slate-800 overflow-hidden">
+          <div
+            className="h-full rounded-full bg-gradient-to-r from-red-600 to-amber-500 transition-all"
+            style={{ width: `${(earnedCount / totalCount) * 100}%` }}
+          />
+        </div>
+      </div>
+
+      {/* Badges par tier */}
+      {TIER_ORDER.map((tier) => {
+        const defs = BADGE_DEFINITIONS.filter((b) => b.tier === tier);
+        return (
+          <div key={tier} className="space-y-3">
+            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-600">
+              {TIER_LABELS[tier]}
+            </p>
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2.5">
+              {defs.map((def) => (
+                <BadgeCard
+                  key={def.id}
+                  badge={def}
+                  earned={!!earnedMap[def.id]}
+                  earnedAt={earnedMap[def.id]}
+                  size="md"
+                />
+              ))}
+            </div>
+          </div>
+        );
+      })}
+    </div>
   );
 }
 

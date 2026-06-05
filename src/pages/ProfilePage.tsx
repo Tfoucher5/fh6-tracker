@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import type { User } from "@supabase/supabase-js";
-import { Save, UserRound, Eye, EyeOff, Users, ExternalLink, Upload, Link2, Camera, ImageIcon, Loader2, X } from "lucide-react";
+import { Save, UserRound, Eye, EyeOff, Users, ExternalLink, Upload, Link2, Camera, ImageIcon, Loader2, X, LogOut } from "lucide-react";
 import { PageLayout } from "../components/PageLayout";
 import { UserAvatar } from "../features/social/components/UserAvatar";
 
@@ -20,6 +20,7 @@ type Profile = {
 type UploadMode = "file" | "url";
 
 export default function ProfilePage() {
+  const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -38,7 +39,10 @@ export default function ProfilePage() {
   const [bannerUploading, setBannerUploading] = useState(false);
   const bannerInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => { loadProfile(); }, []);
+  useEffect(() => {
+    document.title = "Mon profil — FH6 Tracker";
+    loadProfile();
+  }, []);
 
   async function loadProfile() {
     setLoading(true);
@@ -418,6 +422,21 @@ export default function ProfilePage() {
             >
               <Save className="w-5 h-5" />
               {saving ? "Sauvegarde…" : "Sauvegarder"}
+            </button>
+          </div>
+
+          {/* Déconnexion */}
+          <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl px-6 py-4 flex items-center justify-between gap-4">
+            <div>
+              <p className="text-sm font-semibold text-slate-300">Déconnexion</p>
+              <p className="text-xs text-slate-600 mt-0.5">Te déconnecter de FH6 Tracker sur cet appareil.</p>
+            </div>
+            <button
+              onClick={async () => { await supabase.auth.signOut(); navigate("/auth"); }}
+              className="flex items-center gap-2 rounded-xl bg-slate-800 hover:bg-red-500/15 hover:border-red-500/30 border border-slate-700/60 px-4 py-2 text-sm font-bold text-slate-400 hover:text-red-300 transition-colors shrink-0"
+            >
+              <LogOut className="w-4 h-4" />
+              Se déconnecter
             </button>
           </div>
 

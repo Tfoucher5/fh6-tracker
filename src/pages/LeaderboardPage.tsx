@@ -31,6 +31,8 @@ export default function LeaderboardPage() {
   });
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => { document.title = "Classement — FH6 Tracker"; }, []);
+
   useEffect(() => {
     if (data[tab] !== null) return;
     loadTab(tab);

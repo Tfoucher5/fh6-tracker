@@ -69,6 +69,7 @@ export default function DashboardPage() {
   const [upcomingEvents, setUpcomingEvents] = useState<UpcomingEvent[]>([]);
 
   useEffect(() => {
+    document.title = "Dashboard — FH6 Tracker";
     loadDashboard();
   }, []);
 

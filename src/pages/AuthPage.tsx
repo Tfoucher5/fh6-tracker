@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Eye, EyeOff, Mail, Lock, Gauge } from "lucide-react";
 import { supabase } from "../lib/supabase";
 
@@ -14,6 +14,10 @@ function validatePassword(password: string) {
 
 export default function AuthPage() {
   const [mode, setMode] = useState<"login" | "register">("login");
+
+  useEffect(() => {
+    document.title = mode === "login" ? "Connexion — FH6 Tracker" : "Inscription — FH6 Tracker";
+  }, [mode]);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");

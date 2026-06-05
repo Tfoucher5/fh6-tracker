@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { CheckCheck, BellOff } from "lucide-react";
 import { PageLayout } from "../components/PageLayout";
@@ -35,6 +36,8 @@ function groupByDate(notifications: AppNotification[]): DateGroup[] {
 
 export default function InboxPage() {
   const { notifications, loading, unreadCount, markAsRead, markAllAsRead } = useNotifications();
+
+  useEffect(() => { document.title = "Inbox — FH6 Tracker"; }, []);
 
   const groups = groupByDate(notifications);
 

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Home, RefreshCw } from "lucide-react";
 
-const CONTACT_EMAIL = "theonicolas.foucher@gmail.com";
+const CONTACT_EMAIL = "theo@zik-music.fr";
 
 export default function NotFoundPage() {
   const navigate = useNavigate();

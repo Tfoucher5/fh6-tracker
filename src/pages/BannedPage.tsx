@@ -1,7 +1,9 @@
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ShieldOff } from "lucide-react";
 
 export default function BannedPage() {
+  useEffect(() => { document.title = "Compte banni — FH6 Tracker"; }, []);
   return (
     <div className="min-h-screen bg-[#050810] text-white flex items-center justify-center px-4">
       <div className="max-w-md text-center space-y-6">

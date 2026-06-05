@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import AuthPage from "./pages/AuthPage";
 import ProfilePage from "./pages/ProfilePage";
 import CataloguePage from "./pages/CataloguePage";
@@ -15,6 +15,7 @@ import WishlistPage from "./pages/WishlistPage";
 import LeaderboardPage from "./pages/LeaderboardPage";
 import BannedPage from "./pages/BannedPage";
 import AdminPage from "./pages/AdminPage";
+import ChallengePage from "./pages/ChallengePage";
 import NotFoundPage from "./pages/NotFoundPage";
 import { NotificationToast } from "./features/notifications/components/NotificationToast";
 import { StatusGate } from "./components/StatusGate";
@@ -25,11 +26,14 @@ export default function App() {
     <BrowserRouter>
       <StatusGate>
         <Routes>
-          {/* Routes publiques / catalogue */}
-          <Route path="/" element={<DashboardPage />} />
+          {/* Racine → feed */}
+          <Route path="/" element={<Navigate to="/feed" replace />} />
+
+          {/* Routes publiques */}
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/banned" element={<BannedPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/catalogue" element={<CataloguePage />} />
           <Route path="/cars/:id" element={<CarDetailPage />} />
           <Route path="/u/:username" element={<PublicProfilePage />} />
@@ -43,6 +47,7 @@ export default function App() {
             <Route path="/feed" element={<FeedPage />} />
             <Route path="/events" element={<EventsPage />} />
             <Route path="/events/:id" element={<EventDetailPage />} />
+            <Route path="/challenge/:id" element={<ChallengePage />} />
             <Route path="/inbox" element={<InboxPage />} />
             <Route path="/search" element={<SearchPage />} />
           </Route>

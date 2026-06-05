@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -15,6 +15,7 @@ import {
   ChevronDown,
   Car,
   ShieldCheck,
+  Settings,
 } from "lucide-react";
 import { useUnreadCount } from "../features/notifications/hooks/useUnreadCount";
 import { supabase } from "../lib/supabase";
@@ -26,7 +27,7 @@ type NavItem = {
 };
 
 const trackingLinks: NavItem[] = [
-  { to: "/", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/catalogue", label: "Catalogue", icon: BookOpen },
   { to: "/leaderboard", label: "Classement", icon: Trophy },
 ];
@@ -34,12 +35,6 @@ const trackingLinks: NavItem[] = [
 const communityLinks: NavItem[] = [
   { to: "/feed", label: "Feed", icon: Rss },
   { to: "/events", label: "Événements", icon: CalendarDays },
-];
-
-const accountLinks: NavItem[] = [
-  { to: "/profile", label: "Profil", icon: UserRound },
-  { to: "/search", label: "Recherche", icon: Search },
-  { to: "/inbox", label: "Inbox", icon: Bell },
 ];
 
 export function Navbar() {
@@ -50,20 +45,30 @@ export function Navbar() {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [username, setUsername] = useState<string | null>(null);
+  const mobileRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    supabase.rpc("get_my_role").then(({ data }) => {
-      setIsAdmin(data === "admin" || data === "owner");
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
+      if (!user) return;
+      const [{ data: roleData }, { data: profileData }] = await Promise.all([
+        supabase.rpc("get_my_role"),
+        supabase.from("profiles").select("username").eq("id", user.id).single(),
+      ]);
+      if (roleData === "admin" || roleData === "owner") setIsAdmin(true);
+      if (profileData) setUsername(profileData.username);
     });
   }, []);
 
-  const isActive = (to: string) => {
-    return to === "/" ? pathname === "/" : pathname.startsWith(to);
-  };
+  const isActive = (to: string) => pathname.startsWith(to);
+  const hasActiveLink = (items: NavItem[]) => items.some((item) => isActive(item.to));
 
-  const hasActiveLink = (items: NavItem[]) => {
-    return items.some((item) => isActive(item.to));
-  };
+  // Desktop "Compte" dropdown — items dépendent du username
+  const accountLinks: NavItem[] = [
+    { to: username ? `/u/${username}` : "/profile", label: "Mon profil", icon: UserRound },
+    { to: "/profile", label: "Paramètres", icon: Settings },
+    { to: "/search", label: "Recherche", icon: Search },
+  ];
 
   function toggleDropdown(name: string) {
     setOpenDropdown((current) => (current === name ? null : name));
@@ -75,21 +80,22 @@ export function Navbar() {
   }
 
   async function handleLogout() {
-    const { error } = await supabase.auth.signOut();
-
-    if (error) {
-      console.error("Erreur lors de la déconnexion :", error.message);
-      return;
-    }
-
+    await supabase.auth.signOut();
     closeMenus();
     navigate("/auth");
   }
 
+  // Liens secondaires dans le menu mobile "Plus"
+  const mobileSecondaryLinks: NavItem[] = [
+    { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { to: "/catalogue", label: "Catalogue", icon: BookOpen },
+    { to: "/leaderboard", label: "Classement", icon: Trophy },
+  ];
+
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-slate-800/60 bg-[#050810]/90 backdrop-blur-sm">
       <div className="max-w-7xl mx-auto h-14 px-4 flex items-center justify-between">
-        <Link to="/" onClick={closeMenus} className="flex items-center gap-3">
+        <Link to="/feed" onClick={closeMenus} className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-red-600/15 border border-red-500/25 flex items-center justify-center">
             <Car className="w-5 h-5 text-red-400" />
           </div>
@@ -107,17 +113,6 @@ export function Navbar() {
         {/* Desktop */}
         <nav className="hidden md:flex items-center gap-1">
           <Dropdown
-            name="tracking"
-            label="Suivi"
-            items={trackingLinks}
-            active={hasActiveLink(trackingLinks)}
-            openDropdown={openDropdown}
-            toggleDropdown={toggleDropdown}
-            closeMenus={closeMenus}
-            isActive={isActive}
-          />
-
-          <Dropdown
             name="community"
             label="Communauté"
             items={communityLinks}
@@ -129,15 +124,25 @@ export function Navbar() {
           />
 
           <Dropdown
-            name="account"
-            label="Compte"
-            items={accountLinks}
-            active={hasActiveLink(accountLinks)}
+            name="tracking"
+            label="Suivi"
+            items={trackingLinks}
+            active={hasActiveLink(trackingLinks)}
             openDropdown={openDropdown}
             toggleDropdown={toggleDropdown}
             closeMenus={closeMenus}
             isActive={isActive}
-            unreadCount={unreadCount}
+          />
+
+          <Dropdown
+            name="account"
+            label="Compte"
+            items={accountLinks}
+            active={false}
+            openDropdown={openDropdown}
+            toggleDropdown={toggleDropdown}
+            closeMenus={closeMenus}
+            isActive={isActive}
             footer={
               <button
                 type="button"
@@ -176,7 +181,6 @@ export function Navbar() {
             title="Inbox"
           >
             <Bell className="w-4 h-4" />
-
             {unreadCount > 0 && (
               <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] rounded-full bg-red-500 text-[10px] font-black text-white flex items-center justify-center px-1 leading-none">
                 {unreadCount > 99 ? "99+" : unreadCount}
@@ -185,71 +189,77 @@ export function Navbar() {
           </Link>
         </nav>
 
-        {/* Mobile burger */}
-        <button
-          type="button"
-          onClick={() => setMobileOpen((current) => !current)}
-          className="md:hidden flex items-center justify-center w-10 h-10 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800/70 transition-colors"
-          aria-label={mobileOpen ? "Fermer le menu" : "Ouvrir le menu"}
-        >
-          {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-        </button>
+        {/* Mobile — bouton "Plus" (secondaire uniquement, nav principale = BottomTabBar) */}
+        <div className="md:hidden flex items-center gap-1" ref={mobileRef}>
+          {isAdmin && (
+            <Link
+              to="/admin"
+              onClick={closeMenus}
+              className="flex items-center justify-center w-9 h-9 rounded-lg text-slate-500 hover:text-red-400 transition-colors"
+              title="Administration"
+            >
+              <ShieldCheck className="w-4 h-4" />
+            </Link>
+          )}
+          <button
+            type="button"
+            onClick={() => setMobileOpen((v) => !v)}
+            className="flex items-center justify-center w-10 h-10 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800/70 transition-colors"
+            aria-label={mobileOpen ? "Fermer" : "Plus"}
+          >
+            {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
+        </div>
       </div>
 
-      {/* Mobile menu */}
+      {/* Mobile menu — nav secondaire + déconnexion */}
       {mobileOpen && (
-        <div className="md:hidden border-t border-slate-800/60 bg-[#050810]/95 backdrop-blur-sm">
-          <div className="px-4 py-4 space-y-5">
-            <MobileSection title="Suivi">
-              {trackingLinks.map((item) => (
-                <MobileLink
-                  key={item.to}
-                  item={item}
-                  active={isActive(item.to)}
-                  onClick={closeMenus}
-                />
-              ))}
-            </MobileSection>
-
-            <MobileSection title="Communauté">
-              {communityLinks.map((item) => (
-                <MobileLink
-                  key={item.to}
-                  item={item}
-                  active={isActive(item.to)}
-                  onClick={closeMenus}
-                />
-              ))}
-            </MobileSection>
-
-            <MobileSection title="Compte">
-              {accountLinks.map((item) => (
-                <MobileLink
-                  key={item.to}
-                  item={item}
-                  active={isActive(item.to)}
-                  onClick={closeMenus}
-                  unreadCount={item.to === "/inbox" ? unreadCount : undefined}
-                />
-              ))}
-
-              {isAdmin && (
-                <MobileLink
-                  item={{ to: "/admin", label: "Administration", icon: ShieldCheck }}
-                  active={isActive("/admin")}
-                  onClick={closeMenus}
-                />
-              )}
-
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:text-red-300 hover:bg-red-500/10 transition-colors"
+        <div className="md:hidden border-t border-slate-800/60 bg-[#050810]/98 backdrop-blur-sm">
+          <div className="px-4 py-3 space-y-1">
+            <p className="px-2 pt-1 pb-2 text-[10px] font-bold uppercase tracking-[0.3em] text-slate-600">
+              Navigation
+            </p>
+            {mobileSecondaryLinks.map(({ to, label, icon: Icon }) => (
+              <Link
+                key={to}
+                to={to}
+                onClick={closeMenus}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                  isActive(to)
+                    ? "bg-slate-800 text-white"
+                    : "text-slate-400 hover:text-white hover:bg-slate-800/70"
+                }`}
               >
-                <LogOut className="w-4 h-4" />
-                Déconnexion
-              </button>
-            </MobileSection>
+                <Icon className="w-4 h-4" />
+                {label}
+              </Link>
+            ))}
+
+            {isAdmin && (
+              <Link
+                to="/admin"
+                onClick={closeMenus}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                  isActive("/admin")
+                    ? "bg-red-600/20 text-red-400"
+                    : "text-slate-400 hover:text-red-400 hover:bg-red-500/10"
+                }`}
+              >
+                <ShieldCheck className="w-4 h-4" />
+                Administration
+              </Link>
+            )}
+
+            <div className="my-1 h-px bg-slate-800" />
+
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:text-red-300 hover:bg-red-500/10 transition-colors"
+            >
+              <LogOut className="w-4 h-4" />
+              Déconnexion
+            </button>
           </div>
         </div>
       )}
@@ -341,57 +351,5 @@ function Dropdown({
         </div>
       )}
     </div>
-  );
-}
-
-type MobileSectionProps = {
-  title: string;
-  children: React.ReactNode;
-};
-
-function MobileSection({ title, children }: MobileSectionProps) {
-  return (
-    <section>
-      <p className="px-1 mb-2 text-[10px] font-bold uppercase tracking-[0.3em] text-slate-600">
-        {title}
-      </p>
-
-      <div className="space-y-1">
-        {children}
-      </div>
-    </section>
-  );
-}
-
-type MobileLinkProps = {
-  item: NavItem;
-  active: boolean;
-  onClick: () => void;
-  unreadCount?: number;
-};
-
-function MobileLink({ item, active, onClick, unreadCount }: MobileLinkProps) {
-  const Icon = item.icon;
-  const showBadge = typeof unreadCount === "number" && unreadCount > 0;
-
-  return (
-    <Link
-      to={item.to}
-      onClick={onClick}
-      className={`relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
-        active
-          ? "bg-slate-800 text-white"
-          : "text-slate-400 hover:text-white hover:bg-slate-800/70"
-      }`}
-    >
-      <Icon className="w-4 h-4" />
-      <span>{item.label}</span>
-
-      {showBadge && (
-        <span className="ml-auto min-w-[18px] h-[18px] rounded-full bg-red-500 text-[10px] font-black text-white flex items-center justify-center px-1 leading-none">
-          {unreadCount > 99 ? "99+" : unreadCount}
-        </span>
-      )}
-    </Link>
   );
 }

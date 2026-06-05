@@ -25,11 +25,11 @@ export function useEventDetail(eventId: string | undefined) {
       .from("events")
       .select(`
         *,
-        profile:profiles(username, display_name, avatar_url),
+        profile:profiles!events_creator_id_fkey(username, display_name, avatar_url),
         event_participants(
           user_id,
           joined_at,
-          profile:profiles(username, display_name, avatar_url)
+          profile:profiles!event_participants_user_id_fkey(username, display_name, avatar_url)
         )
       `)
       .eq("id", eventId)

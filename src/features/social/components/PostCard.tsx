@@ -1,18 +1,23 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Heart, MessageCircle, Trash2, Car, Bookmark } from "lucide-react";
+import { Heart, MessageCircle, Trash2, Car, Bookmark, Flag, EyeOff, ShieldCheck, Target } from "lucide-react";
 import type { FeedPost } from "../types";
 import { UserAvatar } from "./UserAvatar";
 import { FeedComments } from "./FeedComments";
 import { ClassBadge } from "../../../components/ClassBadge";
 import { LightboxTrigger, PostLightbox } from "./PostLightbox";
+import { ReportModal } from "./ReportModal";
+import { supabase } from "../../../lib/supabase";
 
 type PostCardProps = {
   post: FeedPost;
   currentUserId: string | null;
   isSaved?: boolean;
+  isAdmin?: boolean;
+  isChallengeEntry?: boolean;
   onLike: (postId: string) => void;
   onDelete: (postId: string) => void;
+  onAdminHide?: (postId: string) => void;
   onSave?: (postId: string) => void;
   onCommentAdded: (postId: string) => void;
 };
@@ -29,15 +34,31 @@ function relativeDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString("fr-FR");
 }
 
-export function PostCard({ post, currentUserId, isSaved = false, onLike, onDelete, onSave, onCommentAdded }: PostCardProps) {
+export function PostCard({ post, currentUserId, isSaved = false, isAdmin = false, isChallengeEntry = false, onLike, onDelete, onAdminHide, onSave, onCommentAdded }: PostCardProps) {
   const [showComments, setShowComments] = useState(false);
   const [lightbox, setLightbox] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [showReport, setShowReport] = useState(false);
+  const [adminActionLoading, setAdminActionLoading] = useState(false);
   const liked = post.post_likes.some((l) => l.user_id === currentUserId);
   const likeCount = post.post_likes.length;
   const commentCount = post.post_comments.length;
   const isOwner = post.user_id === currentUserId;
   const imageUrl = post.photo_url ?? post.car?.image_url;
+
+  async function adminHide() {
+    if (adminActionLoading) return;
+    setAdminActionLoading(true);
+    const { error } = await supabase.rpc("admin_hide_post", { p_post_id: post.id });
+    setAdminActionLoading(false);
+    if (error) {
+      console.error("admin_hide_post error:", error.message);
+      alert(`Erreur : ${error.message}`);
+      return;
+    }
+    // Utiliser onAdminHide (retrait local uniquement) et non onDelete (qui supprime en BDD)
+    onAdminHide?.(post.id);
+  }
 
   // Guard: profile can be null if RLS blocks visibility (shouldn't happen after fix, but defensive)
   if (!post.profile) return null;
@@ -54,9 +75,16 @@ export function PostCard({ post, currentUserId, isSaved = false, onLike, onDelet
           linkToProfile
         />
         <div className="flex-1 min-w-0">
-          <Link to={`/u/${post.profile.username}`} className="text-sm font-bold text-white hover:text-red-400 transition-colors">
-            {post.profile.display_name ?? post.profile.username}
-          </Link>
+          <div className="flex items-center gap-2 flex-wrap">
+            <Link to={`/u/${post.profile.username}`} className="text-sm font-bold text-white hover:text-red-400 transition-colors">
+              {post.profile.display_name ?? post.profile.username}
+            </Link>
+            {isChallengeEntry && (
+              <span className="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-red-500/15 border border-red-500/25 text-red-400">
+                <Target className="w-2.5 h-2.5" />Défi
+              </span>
+            )}
+          </div>
           <p className="text-[11px] text-slate-600 font-mono">{relativeDate(post.created_at)}</p>
         </div>
         {post.car && (
@@ -64,7 +92,7 @@ export function PostCard({ post, currentUserId, isSaved = false, onLike, onDelet
             <ClassBadge carClass={post.car.car_class ?? "?"} pi={post.car.pi} size="sm" />
           </Link>
         )}
-        {isOwner && (
+        {isOwner ? (
           confirmDelete ? (
             <div className="flex items-center gap-1.5 shrink-0">
               <span className="text-xs text-slate-400">Supprimer ?</span>
@@ -86,7 +114,15 @@ export function PostCard({ post, currentUserId, isSaved = false, onLike, onDelet
               <Trash2 className="w-4 h-4" />
             </button>
           )
-        )}
+        ) : currentUserId ? (
+          <button
+            onClick={() => setShowReport(true)}
+            className="text-slate-700 hover:text-red-500 transition-colors shrink-0"
+            title="Signaler ce post"
+          >
+            <Flag className="w-4 h-4" />
+          </button>
+        ) : null}
       </div>
 
       {/* Photo */}
@@ -160,7 +196,27 @@ export function PostCard({ post, currentUserId, isSaved = false, onLike, onDelet
         )}
       </div>
 
+      {isAdmin && (
+        <div className="border-t border-amber-500/10 bg-amber-500/5 px-4 py-2 flex items-center gap-2">
+          <ShieldCheck className="w-3 h-3 text-amber-600/70" />
+          <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-amber-700/60">Staff</span>
+          <div className="ml-auto flex gap-1.5">
+            <button
+              onClick={adminHide}
+              disabled={adminActionLoading}
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-slate-800/80 text-amber-400 border border-amber-500/25 hover:bg-amber-500/15 hover:border-amber-500/40 transition-colors disabled:opacity-40"
+            >
+              <EyeOff className="w-3 h-3" />
+              Masquer
+            </button>
+          </div>
+        </div>
+      )}
+
       {lightbox && <PostLightbox src={lightbox} onClose={() => setLightbox(null)} />}
+      {showReport && (
+        <ReportModal targetType="post" targetId={post.id} onClose={() => setShowReport(false)} />
+      )}
     </article>
   );
 }
