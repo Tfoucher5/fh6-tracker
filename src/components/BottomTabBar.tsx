@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Rss, CalendarDays, Search, Bell, UserRound } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import { useUnreadCount } from "../features/notifications/hooks/useUnreadCount";
+import { prefetchRoute } from "../lib/prefetchRoute";
 
 export function BottomTabBar() {
   const { pathname } = useLocation();
@@ -30,11 +31,11 @@ export function BottomTabBar() {
   }
 
   const tabs = [
-    { to: "/feed", label: "Feed", Icon: Rss, badge: 0 },
-    { to: "/events", label: "Events", Icon: CalendarDays, badge: 0 },
-    { to: "/search", label: "Recherche", Icon: Search, badge: 0 },
-    { to: "/inbox", label: "Inbox", Icon: Bell, badge: unreadCount },
-    { to: profileTo, label: "Profil", Icon: UserRound, badge: 0 },
+    { to: "/feed", label: "Feed", Icon: Rss, badge: 0, prefetchFn: () => prefetchRoute(() => import("../pages/FeedPage")) },
+    { to: "/events", label: "Events", Icon: CalendarDays, badge: 0, prefetchFn: () => prefetchRoute(() => import("../pages/EventsPage")) },
+    { to: "/search", label: "Recherche", Icon: Search, badge: 0, prefetchFn: () => prefetchRoute(() => import("../pages/SearchPage")) },
+    { to: "/inbox", label: "Inbox", Icon: Bell, badge: unreadCount, prefetchFn: () => prefetchRoute(() => import("../pages/InboxPage")) },
+    { to: profileTo, label: "Profil", Icon: UserRound, badge: 0, prefetchFn: () => prefetchRoute(() => import("../pages/PublicProfilePage")) },
   ];
 
   return (
@@ -43,12 +44,13 @@ export function BottomTabBar() {
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       <div className="flex h-14">
-        {tabs.map(({ to, label, Icon, badge }) => {
+        {tabs.map(({ to, label, Icon, badge, prefetchFn }) => {
           const active = isActive(to);
           return (
             <Link
               key={to}
               to={to}
+              onMouseEnter={prefetchFn}
               className={`flex-1 flex flex-col items-center justify-center gap-0.5 transition-colors ${
                 active ? "text-white" : "text-slate-500 hover:text-slate-300"
               }`}

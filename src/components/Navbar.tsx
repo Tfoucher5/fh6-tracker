@@ -19,22 +19,24 @@ import {
 } from "lucide-react";
 import { useUnreadCount } from "../features/notifications/hooks/useUnreadCount";
 import { supabase } from "../lib/supabase";
+import { prefetchRoute } from "../lib/prefetchRoute";
 
 type NavItem = {
   to: string;
   label: string;
   icon: React.ComponentType<{ className?: string }>;
+  prefetch?: () => void;
 };
 
 const trackingLinks: NavItem[] = [
-  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/catalogue", label: "Catalogue", icon: BookOpen },
-  { to: "/leaderboard", label: "Classement", icon: Trophy },
+  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, prefetch: () => prefetchRoute(() => import("../pages/DashboardPage")) },
+  { to: "/catalogue", label: "Catalogue", icon: BookOpen, prefetch: () => prefetchRoute(() => import("../pages/CataloguePage")) },
+  { to: "/leaderboard", label: "Classement", icon: Trophy, prefetch: () => prefetchRoute(() => import("../pages/LeaderboardPage")) },
 ];
 
 const communityLinks: NavItem[] = [
-  { to: "/feed", label: "Feed", icon: Rss },
-  { to: "/events", label: "Événements", icon: CalendarDays },
+  { to: "/feed", label: "Feed", icon: Rss, prefetch: () => prefetchRoute(() => import("../pages/FeedPage")) },
+  { to: "/events", label: "Événements", icon: CalendarDays, prefetch: () => prefetchRoute(() => import("../pages/EventsPage")) },
 ];
 
 export function Navbar() {
@@ -338,7 +340,8 @@ function Dropdown({
       {open && (
         <div className="absolute right-0 mt-2 w-56 rounded-2xl border border-slate-800 bg-slate-950/95 shadow-2xl p-2">
           <div className="space-y-1">
-            {items.map(({ to, label, icon: Icon }) => {
+            {items.map((item) => {
+              const { to, label, icon: Icon } = item;
               const itemActive = isActive(to);
               const showBadge = to === "/inbox" && unreadCount && unreadCount > 0;
 
@@ -347,6 +350,7 @@ function Dropdown({
                   key={to}
                   to={to}
                   onClick={closeMenus}
+                  onMouseEnter={item.prefetch}
                   className={`relative flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-colors ${
                     itemActive
                       ? "bg-slate-800 text-white"
