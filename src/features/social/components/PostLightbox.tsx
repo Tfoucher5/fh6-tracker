@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { X, ZoomIn } from "lucide-react";
+import { transformImage } from "../../../lib/imageTransform";
 
 type PostLightboxProps = {
   src: string;
@@ -31,7 +32,7 @@ export function PostLightbox({ src, alt = "Photo", onClose }: PostLightboxProps)
       </button>
 
       <img
-        src={src}
+        src={transformImage(src, 1600, 90) ?? src}
         alt={alt}
         className="max-w-full max-h-[90dvh] object-contain rounded-xl shadow-2xl cursor-default"
         onClick={(e) => e.stopPropagation()}

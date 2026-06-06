@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { transformImage } from "../../../lib/imageTransform";
 
 type UserAvatarProps = {
   username: string;
@@ -42,8 +43,10 @@ export function UserAvatar({ username, displayName, avatarUrl, size = "md", link
 
   const inner = avatarUrl ? (
     <img
-      src={avatarUrl}
+      src={transformImage(avatarUrl, 80) ?? avatarUrl}
       alt={username}
+      loading="lazy"
+      decoding="async"
       className={`${sizeClass} rounded-full object-cover shrink-0`}
     />
   ) : (

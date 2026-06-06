@@ -1,5 +1,6 @@
 import { Trash2 } from "lucide-react";
 import type { CarPhoto } from "../types";
+import { transformImage } from "../../../lib/imageTransform";
 
 type CarPhotoGalleryProps = {
   photos: CarPhoto[];
@@ -36,7 +37,7 @@ export function CarPhotoGallery({
                 className="bg-slate-950 border border-slate-800 rounded-2xl overflow-hidden"
               >
                 <img
-                  src={photo.image_url}
+                  src={transformImage(photo.image_url, 640) ?? photo.image_url}
                   alt={photo.caption ?? "Photo voiture"}
                   loading="lazy"
                   decoding="async"

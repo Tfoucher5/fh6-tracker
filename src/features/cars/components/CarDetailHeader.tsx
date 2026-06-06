@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { ArrowLeft, Car } from "lucide-react";
 import type { CarDetail } from "../types";
 import { ClassBadge } from "../../../components/ClassBadge";
+import { transformImage } from "../../../lib/imageTransform";
 
 type CarDetailHeaderProps = {
   car: CarDetail;
@@ -24,7 +25,7 @@ export function CarDetailHeader({ car }: CarDetailHeaderProps) {
         <div className="h-72 bg-slate-900/60 border border-slate-800/80 rounded-2xl flex items-center justify-center overflow-hidden">
           {car.image_url ? (
             <img
-              src={car.image_url}
+              src={transformImage(car.image_url, 900) ?? car.image_url}
               alt={title}
               loading="lazy"
               decoding="async"
