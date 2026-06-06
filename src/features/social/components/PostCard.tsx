@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { memo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Heart, MessageCircle, Trash2, Car, Bookmark, Flag, EyeOff, ShieldCheck, Target } from "lucide-react";
 import type { FeedPost } from "../types";
@@ -36,7 +36,7 @@ function relativeDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString("fr-FR");
 }
 
-export function PostCard({ post, currentUserId, isSaved = false, isAdmin = false, isChallengeEntry = false, priority = false, onLike, onDelete, onAdminHide, onSave, onCommentAdded }: PostCardProps) {
+export const PostCard = memo(function PostCard({ post, currentUserId, isSaved = false, isAdmin = false, isChallengeEntry = false, priority = false, onLike, onDelete, onAdminHide, onSave, onCommentAdded }: PostCardProps) {
   const navigate = useNavigate();
   const [showComments, setShowComments] = useState(false);
   const [lightbox, setLightbox] = useState<string | null>(null);
@@ -226,4 +226,4 @@ export function PostCard({ post, currentUserId, isSaved = false, isAdmin = false
       )}
     </article>
   );
-}
+});

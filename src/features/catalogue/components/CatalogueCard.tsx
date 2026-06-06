@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Camera, Check, Star, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import type { CarRow, UserCarRow } from "../types";
@@ -14,7 +15,7 @@ type CatalogueCardProps = {
   priority?: boolean;
 };
 
-export function CatalogueCard({ car, status, saving, toggleStatus, priority = false }: CatalogueCardProps) {
+export const CatalogueCard = memo(function CatalogueCard({ car, status, saving, toggleStatus, priority = false }: CatalogueCardProps) {
   const title = `${car.year ?? "N/A"} ${car.make} ${car.model}`;
 
   return (
@@ -95,4 +96,4 @@ export function CatalogueCard({ car, status, saving, toggleStatus, priority = fa
       </div>
     </article>
   );
-}
+});
