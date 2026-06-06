@@ -22,6 +22,7 @@ const LeaderboardPage = lazy(() => import("./pages/LeaderboardPage"));
 const BannedPage = lazy(() => import("./pages/BannedPage"));
 const AdminPage = lazy(() => import("./pages/AdminPage"));
 const ChallengePage = lazy(() => import("./pages/ChallengePage"));
+const SetupProfilePage = lazy(() => import("./pages/SetupProfilePage"));
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
 
 function PageLoader() {
@@ -43,6 +44,7 @@ export default function App() {
 
             {/* Routes publiques */}
             <Route path="/auth" element={<AuthPage />} />
+            <Route path="/setup-profile" element={<SetupProfilePage />} />
             <Route path="/banned" element={<BannedPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/dashboard" element={<DashboardPage />} />

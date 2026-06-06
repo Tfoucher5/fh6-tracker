@@ -138,7 +138,7 @@ export const PostCard = memo(function PostCard({ post, currentUserId, isSaved = 
             decoding="async"
             fetchPriority={priority ? "high" : "auto"}
             sizes="(max-width: 768px) 100vw, 672px"
-            className="w-full aspect-video object-cover"
+            className="w-full aspect-[4/3] object-contain bg-slate-950"
           />
         </LightboxTrigger>
       ) : (
