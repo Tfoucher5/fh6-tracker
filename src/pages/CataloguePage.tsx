@@ -69,13 +69,14 @@ export default function CataloguePage() {
               />
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                {filters.visibleCars.map((car) => (
+                {filters.visibleCars.map((car, index) => (
                   <CatalogueCard
                     key={car.id}
                     car={car}
                     status={getStatus(car.id)}
                     saving={savingCarId === car.id}
                     toggleStatus={toggleStatus}
+                    priority={index === 0}
                   />
                 ))}
               </div>

@@ -1,19 +1,22 @@
 import { Car } from "lucide-react";
+import { transformImage } from "../../../lib/imageTransform";
 
 type CarImageProps = {
   imageUrl: string | null;
   alt: string;
+  priority?: boolean;
 };
 
-export function CarImage({ imageUrl, alt }: CarImageProps) {
+export function CarImage({ imageUrl, alt, priority = false }: CarImageProps) {
   return (
     <div className="h-36 bg-gradient-to-br from-slate-800 to-slate-950 flex items-center justify-center overflow-hidden">
       {imageUrl ? (
         <img
-          src={imageUrl}
+          src={transformImage(imageUrl, 480) ?? imageUrl}
           alt={alt}
-          loading="lazy"
+          loading={priority ? "eager" : "lazy"}
           decoding="async"
+          fetchPriority={priority ? "high" : "auto"}
           className="w-full h-full object-cover"
         />
       ) : (

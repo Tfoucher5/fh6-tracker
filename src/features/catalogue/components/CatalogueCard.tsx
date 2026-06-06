@@ -11,14 +11,15 @@ type CatalogueCardProps = {
   status: UserCarRow;
   saving: boolean;
   toggleStatus: (carId: string, field: ToggleField) => void;
+  priority?: boolean;
 };
 
-export function CatalogueCard({ car, status, saving, toggleStatus }: CatalogueCardProps) {
+export function CatalogueCard({ car, status, saving, toggleStatus, priority = false }: CatalogueCardProps) {
   const title = `${car.year ?? "N/A"} ${car.make} ${car.model}`;
 
   return (
     <article className="bg-slate-900/60 border border-slate-800/80 rounded-2xl overflow-hidden hover:border-slate-700/80 transition-colors group">
-      <CarImage imageUrl={car.image_url} alt={title} />
+      <CarImage imageUrl={car.image_url} alt={title} priority={priority} />
 
       <div className="p-4 space-y-3">
         <div className="flex justify-between gap-3">

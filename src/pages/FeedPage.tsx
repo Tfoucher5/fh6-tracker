@@ -106,7 +106,7 @@ export default function FeedPage() {
             <EmptyState filter={filter} userId={user?.id ?? null} onPost={() => composer.setIsOpen(true)} />
           ) : (
             <div className="space-y-4">
-              {posts.map((post) => {
+              {posts.map((post, index) => {
                 const isChallengeEntry = !!(
                   challenge?.car_id &&
                   post.car_id === challenge.car_id &&
@@ -121,6 +121,7 @@ export default function FeedPage() {
                     isSaved={savedIds.has(post.id)}
                     isAdmin={isAdmin}
                     isChallengeEntry={isChallengeEntry}
+                    priority={index === 0}
                     onLike={toggleLike}
                     onDelete={deletePost}
                     onAdminHide={removePostFromFeed}

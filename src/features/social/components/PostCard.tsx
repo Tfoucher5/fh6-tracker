@@ -16,6 +16,7 @@ type PostCardProps = {
   isSaved?: boolean;
   isAdmin?: boolean;
   isChallengeEntry?: boolean;
+  priority?: boolean;
   onLike: (postId: string) => void;
   onDelete: (postId: string) => void;
   onAdminHide?: (postId: string) => void;
@@ -35,7 +36,7 @@ function relativeDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString("fr-FR");
 }
 
-export function PostCard({ post, currentUserId, isSaved = false, isAdmin = false, isChallengeEntry = false, onLike, onDelete, onAdminHide, onSave, onCommentAdded }: PostCardProps) {
+export function PostCard({ post, currentUserId, isSaved = false, isAdmin = false, isChallengeEntry = false, priority = false, onLike, onDelete, onAdminHide, onSave, onCommentAdded }: PostCardProps) {
   const navigate = useNavigate();
   const [showComments, setShowComments] = useState(false);
   const [lightbox, setLightbox] = useState<string | null>(null);
@@ -133,8 +134,10 @@ export function PostCard({ post, currentUserId, isSaved = false, isAdmin = false
           <img
             src={transformImage(imageUrl, 900) ?? imageUrl}
             alt={post.car ? `${post.car.make} ${post.car.model}` : "Post"}
-            loading="lazy"
+            loading={priority ? "eager" : "lazy"}
             decoding="async"
+            fetchPriority={priority ? "high" : "auto"}
+            sizes="(max-width: 768px) 100vw, 672px"
             className="w-full aspect-video object-cover"
           />
         </LightboxTrigger>
