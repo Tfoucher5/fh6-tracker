@@ -29,7 +29,8 @@ export default function SetupProfilePage() {
 
     const { error: upsertError } = await supabase
       .from("profiles")
-      .upsert({ id: user.id, username }, { onConflict: "id" });
+      .update({ username, needs_username_setup: false })
+      .eq("id", user.id);
 
     if (upsertError) {
       setError(

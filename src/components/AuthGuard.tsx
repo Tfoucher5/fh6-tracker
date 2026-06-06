@@ -15,15 +15,11 @@ export function AuthGuard() {
 
       const { data: profile } = await supabase
         .from("profiles")
-        .select("username")
+        .select("needs_username_setup")
         .eq("id", user.id)
         .single();
 
-      if (!profile?.username) {
-        setStatus("needs-profile");
-      } else {
-        setStatus("auth");
-      }
+      setStatus(profile?.needs_username_setup ? "needs-profile" : "auth");
     })();
   }, []);
 
