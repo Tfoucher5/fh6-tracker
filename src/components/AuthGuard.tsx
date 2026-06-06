@@ -2,14 +2,29 @@ import { useEffect, useState } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 
+type Status = "loading" | "auth" | "anon" | "needs-profile";
+
 export function AuthGuard() {
-  const [status, setStatus] = useState<"loading" | "auth" | "anon">("loading");
+  const [status, setStatus] = useState<Status>("loading");
   const location = useLocation();
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setStatus(user ? "auth" : "anon");
-    });
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { setStatus("anon"); return; }
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("username")
+        .eq("id", user.id)
+        .single();
+
+      if (!profile?.username) {
+        setStatus("needs-profile");
+      } else {
+        setStatus("auth");
+      }
+    })();
   }, []);
 
   if (status === "loading") {
@@ -22,6 +37,10 @@ export function AuthGuard() {
 
   if (status === "anon") {
     return <Navigate to={`/auth?returnTo=${encodeURIComponent(location.pathname)}`} replace />;
+  }
+
+  if (status === "needs-profile") {
+    return <Navigate to={`/setup-profile?returnTo=${encodeURIComponent(location.pathname)}`} replace />;
   }
 
   return <Outlet />;
