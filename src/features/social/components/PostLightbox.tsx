@@ -35,6 +35,8 @@ export function PostLightbox({ src, alt = "Photo", onClose }: PostLightboxProps)
         src={transformImage(src, 1600, 90) ?? src}
         alt={alt}
         className="max-w-full max-h-[90dvh] object-contain rounded-xl shadow-2xl cursor-default"
+        loading="lazy"
+        decoding="async"
         onClick={(e) => e.stopPropagation()}
       />
     </div>
