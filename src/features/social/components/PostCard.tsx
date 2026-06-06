@@ -131,15 +131,22 @@ export const PostCard = memo(function PostCard({ post, currentUserId, isSaved = 
       {/* Photo */}
       {imageUrl ? (
         <LightboxTrigger src={imageUrl} alt={post.car ? `${post.car.make} ${post.car.model}` : "Post"} onOpen={setLightbox}>
-          <img
-            src={transformImage(imageUrl, 900) ?? imageUrl}
-            alt={post.car ? `${post.car.make} ${post.car.model}` : "Post"}
-            loading={priority ? "eager" : "lazy"}
-            decoding="async"
-            fetchPriority={priority ? "high" : "auto"}
-            sizes="(max-width: 768px) 100vw, 672px"
-            className="w-full aspect-[4/3] object-contain bg-slate-950"
-          />
+          {(() => {
+            const src = transformImage(imageUrl, 900, 82) ?? imageUrl;
+            const src2x = transformImage(imageUrl, 1400, 82);
+            return (
+              <img
+                src={src}
+                srcSet={src2x ? `${src} 900w, ${src2x} 1400w` : undefined}
+                alt={post.car ? `${post.car.make} ${post.car.model}` : "Post"}
+                loading={priority ? "eager" : "lazy"}
+                decoding="async"
+                fetchPriority={priority ? "high" : "auto"}
+                sizes="(max-width: 768px) 100vw, 672px"
+                className="w-full h-auto max-h-[520px] object-cover bg-slate-950 block"
+              />
+            );
+          })()}
         </LightboxTrigger>
       ) : (
         <div className="w-full aspect-video bg-slate-950/60 flex items-center justify-center">
