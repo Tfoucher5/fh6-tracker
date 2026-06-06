@@ -20,8 +20,15 @@ export function useFeed(filter: "all" | "following") {
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
   const filterRef = useRef(filter);
   filterRef.current = filter;
+  const postsRef = useRef(posts);
+  postsRef.current = posts;
+  const loadingMoreRef = useRef(loadingMore);
+  loadingMoreRef.current = loadingMore;
+  const hasMoreRef = useRef(hasMore);
+  hasMoreRef.current = hasMore;
 
   const loadPosts = useCallback(
     async (offset: number, currentUser: User | null, reset: boolean) => {
@@ -89,19 +96,18 @@ export function useFeed(filter: "all" | "following") {
     return () => { cancelled = true; };
   }, [filter, loadPosts]);
 
-  async function loadMore() {
-    if (loadingMore || !hasMore) return;
+  const loadMore = useCallback(async () => {
+    if (loadingMoreRef.current || !hasMoreRef.current) return;
     setLoadingMore(true);
     const { data: { user: currentUser } } = await supabase.auth.getUser();
-    await loadPosts(posts.length, currentUser, false);
+    await loadPosts(postsRef.current.length, currentUser, false);
     setLoadingMore(false);
-  }
+  }, [loadPosts]);
 
-  function toggleLike(postId: string) {
+  const toggleLike = useCallback((postId: string) => {
     if (!user) return;
     const userId = user.id;
-
-    const post = posts.find((p) => p.id === postId);
+    const post = postsRef.current.find((p) => p.id === postId);
     if (!post) return;
     const liked = post.post_likes.some((l) => l.user_id === userId);
 
@@ -122,18 +128,18 @@ export function useFeed(filter: "all" | "following") {
     } else {
       supabase.from("post_likes").insert({ post_id: postId, user_id: userId }).then(() => {});
     }
-  }
+  }, [user]);
 
-  function incrementCommentCount(postId: string) {
+  const incrementCommentCount = useCallback((postId: string) => {
     setPosts((prev) =>
       prev.map((p) =>
         p.id === postId ? { ...p, post_comments: [...p.post_comments, { id: "tmp" }] } : p
       )
     );
-  }
+  }, []);
 
-  function deletePost(postId: string) {
-    const post = posts.find((p) => p.id === postId);
+  const deletePost = useCallback((postId: string) => {
+    const post = postsRef.current.find((p) => p.id === postId);
     if (!post || post.user_id !== user?.id) return;
 
     setPosts((prev) => prev.filter((p) => p.id !== postId));
@@ -146,15 +152,15 @@ export function useFeed(filter: "all" | "following") {
           await supabase.storage.from("post-photos").remove([post.storage_path]);
         }
       });
-  }
+  }, [user?.id]);
 
-  function removePostFromFeed(postId: string) {
+  const removePostFromFeed = useCallback((postId: string) => {
     setPosts((prev) => prev.filter((p) => p.id !== postId));
-  }
+  }, []);
 
-  function addPost(post: FeedPost) {
+  const addPost = useCallback((post: FeedPost) => {
     setPosts((prev) => [post, ...prev]);
-  }
+  }, []);
 
   return {
     user,

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "../../../lib/supabase";
 import type { CarRow, StatusMap, UserCarRow } from "../types";
@@ -57,18 +57,16 @@ export function useCatalogueData() {
       }
 
       const map: StatusMap = {};
-
       for (const row of (statusData ?? []) as UserCarRow[]) {
         map[row.car_id] = row;
       }
-
       setStatuses(map);
     }
 
     setLoading(false);
   }
 
-  function getStatus(carId: string): UserCarRow {
+  const getStatus = useCallback((carId: string): UserCarRow => {
     return (
       statuses[carId] ?? {
         user_id: user?.id ?? "",
@@ -80,9 +78,9 @@ export function useCatalogueData() {
         photographed_at: null,
       }
     );
-  }
+  }, [statuses, user?.id]);
 
-  async function toggleStatus(carId: string, field: ToggleField) {
+  const toggleStatus = useCallback(async (carId: string, field: ToggleField) => {
     if (!user) {
       window.location.href = "/auth";
       return;
@@ -124,9 +122,7 @@ export function useCatalogueData() {
           acquired_at: next.acquired_at,
           photographed_at: next.photographed_at,
         },
-        {
-          onConflict: "user_id,car_id",
-        }
+        { onConflict: "user_id,car_id" }
       )
       .select(
         "user_id, car_id, owned, photographed, favorite, acquired_at, photographed_at"
@@ -145,7 +141,7 @@ export function useCatalogueData() {
     }));
 
     setSavingCarId(null);
-  }
+  }, [user, getStatus]);
 
   return {
     user,

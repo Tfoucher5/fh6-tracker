@@ -187,7 +187,10 @@ export function useCatalogueFilters({ cars, getStatus }: Params) {
     setSortBy("make_asc");
   }
 
-  const visibleCars = filteredCars.slice(0, visibleCount);
+  const visibleCars = useMemo(
+    () => filteredCars.slice(0, visibleCount),
+    [filteredCars, visibleCount]
+  );
 
   return {
     query,

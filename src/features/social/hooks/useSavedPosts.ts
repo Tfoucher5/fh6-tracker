@@ -1,10 +1,13 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "../../../lib/supabase";
 
 export function useSavedPosts() {
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const savedIdsRef = useRef(savedIds);
+  savedIdsRef.current = savedIds;
 
   useEffect(() => {
     (async () => {
@@ -22,9 +25,9 @@ export function useSavedPosts() {
     })();
   }, []);
 
-  async function toggleSave(postId: string) {
+  const toggleSave = useCallback(async (postId: string) => {
     if (!userId) return;
-    const isSaved = savedIds.has(postId);
+    const isSaved = savedIdsRef.current.has(postId);
 
     setSavedIds((prev) => {
       const next = new Set(prev);
@@ -38,7 +41,7 @@ export function useSavedPosts() {
     } else {
       await supabase.from("saved_posts").insert({ post_id: postId, user_id: userId });
     }
-  }
+  }, [userId]);
 
   return { savedIds, toggleSave, userId, loading };
 }
