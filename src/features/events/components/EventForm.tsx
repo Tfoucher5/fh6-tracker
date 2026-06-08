@@ -85,7 +85,7 @@ export function EventForm({ onSubmit, onClose }: EventFormProps) {
             <input
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              placeholder="Festival de Mulege, Mexico…"
+              placeholder="Site du festival, Tokyo…"
               maxLength={200}
               className="w-full rounded-xl bg-slate-800/80 border border-slate-700/60 px-4 py-2.5 text-sm outline-none focus:border-red-500/70 transition-colors"
             />
